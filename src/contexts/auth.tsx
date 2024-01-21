@@ -1,6 +1,7 @@
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { useRouter } from "next/router";
 import { signIn } from 'src/pages/api/signIn';
+import { signUp } from 'src/pages/api/signUp';
 import { getUser } from 'src/pages/api/getUser';
 import Cookies from 'js-cookie';
 
@@ -13,6 +14,7 @@ interface AuthContextType {
   };
   signin: (username: string, password: string) => Promise<void>;
   signout: () => void;
+  signup: (username: string, email: string, password: string) => Promise<void>;
 }
 
 interface AuthProviderProps {
@@ -24,6 +26,7 @@ const AuthContext = React.createContext<AuthContextType>({
   user: null,
   signin: async () => { },
   signout: () => { },
+  signup: async () => { },
 });
 
 export const useAuth = () => {
@@ -52,8 +55,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }).catch((err) => {
         console.log(err);
       });
-    } else {
-      router.push('/');
     }
     // []に値を設定すると、その値が変更されたときだけuseEffectが実行される
   }, [Cookies.get('access_token')]);
@@ -67,6 +68,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // ログインが成功したら /stm にリダイレクト
       router.push('/stm');
     } catch (err) {
+      alert('サインインに失敗しました');
       console.log(err);
     }
   };
@@ -76,7 +78,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
       setUser(null);
+      router.push('/');
     } catch (err) {
+      alert('サインアウトに失敗しました');
+      console.log(err);
+    }
+  };
+
+  const signup = async (username: string, email: string, password: string) => {
+    try {
+      const res = await signUp(username, email, password);
+      Cookies.set('access_token', res.data.access_token);
+      Cookies.set('refresh_token', res.data.refresh_token);
+      router.push('/stm');
+    } catch (err) {
+      alert('サインアップに失敗しました');
       console.log(err);
     }
   };
@@ -85,6 +101,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     user,
     signin,
     signout,
+    signup,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

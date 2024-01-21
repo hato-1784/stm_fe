@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 const commonAxiosConfig = {
   baseURL: "http://localhost:8000",
   withCredentials: true,
-  timeout: 1000,
+  timeout: 3000,
 };
 
 // レスポンスインターセプターを設定する関数

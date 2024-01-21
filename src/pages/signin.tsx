@@ -1,16 +1,42 @@
-import React, { useState } from "react";
-import Head from "next/head";
-import 'tailwindcss/tailwind.css';
+import * as React from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from 'src/contexts/auth';
+import { useState } from 'react';
 
-const Signin = () => {
+function Copyright(props: any) {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
+
+const defaultTheme = createTheme();
+
+export default function SignIn() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { signin } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // ログイン処理
     try {
       await signin(username, password);
     } catch (err) {
@@ -19,67 +45,74 @@ const Signin = () => {
   };
 
   return (
-    <div>
-      <Head>
-        <title>サインインページ</title>
-      </Head>
-      <section className="">
-        <div className="items-center px-5 py-24 lg:px-20">
-          <div className="flex flex-col w-full max-w-md p-10 mx-auto my-6 transition duration-500 ease-in-out transform bg-gray-100 rounded-lg md:mt-0">
-            <h2 className="text-gray-900 text-lg font-medium title-font mb-5">Login</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="relative mb-4">
-                <label htmlFor="username" className="leading-7 text-sm text-gray-600">Username</label>
-                <div className="mt-1">
-                  <input
-                    id="username"
-                    name="username"
-                    type="username"
-                    autoComplete="username"
-                    required={true}
-                    placeholder="Username"
-                    className="w-full bg-white rounded border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="relative mb-4">
-                <label htmlFor="password" className="leading-7 text-sm text-gray-600">Password</label>
-                <div className="mt-1">
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required={true}
-                    placeholder="Password"
-                    className="w-full bg-white rounded border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <input id="remember-me" name="remember-me" type="checkbox" placeholder="Your password" className="w-4 h-4 text-blue-600 border-gray-200 rounded focus:ring-blue-500" />
-                  <label htmlFor="remember-me" className="block my-2 ml-2 text-sm text-neutral-600"> Remember me </label>
-                </div>
-
-                <div className="text-sm">
-                  <a href="#" className="font-medium text-blue-600 hover:text-blue-500"> Forgot your password? </a>
-                </div>
-              </div>
-
-              <div>
-                <button type="submit" className="flex items-center justify-center w-full px-10 py-4 text-base font-medium text-center text-white transition duration-500 ease-in-out transform bg-green-500 rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2">Sign in</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
-    </div>
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
+              autoFocus
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link href="#" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+        <Copyright sx={{ mt: 8, mb: 4 }} />
+      </Container>
+    </ThemeProvider>
   );
 }
-
-export default Signin;

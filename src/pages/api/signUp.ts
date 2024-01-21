@@ -11,10 +11,7 @@ export async function signUp(username: string, email: string, password: string) 
       password,
       client_request_token
     });
-    return {
-      access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token
-    };
+    return response;
   } catch (error) {
     console.error(error);
     throw error;

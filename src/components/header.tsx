@@ -13,7 +13,7 @@ const Header = () => {
 
   const handleSignOut = async () => {
     try {
-      await signout();
+      signout();
     } catch (error) {
       console.error("Sign out failed:", error);
     }

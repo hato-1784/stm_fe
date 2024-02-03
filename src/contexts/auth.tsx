@@ -51,7 +51,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
         setUser(res.data);
-        router.push('/stm');
+        if (router.pathname === '/') {
+          router.push('/stm');
+        }
       }).catch((err) => {
         console.log(err);
       });

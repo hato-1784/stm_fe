@@ -1,18 +1,15 @@
 import React from "react";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import CssBaseline from '@mui/material/CssBaseline';
-
-const defaultTheme = createTheme();
+import Head from "next/head";
+import { CssBaseline, Container, Box, createTheme, ThemeProvider } from '@mui/material';
 
 const Index = () => {
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <p>test</p>
-      </Container>
-    </ThemeProvider>
+    <>
+      <Head>
+        <title>Top</title>
+      </Head>
+      <p>test</p>
+    </>
   );
 }
 

@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'experimental-edge',
+};
+
 import { formClientWithoutToken } from 'src/lib/apiClients';
 
 export async function signIn(username: string, password: string) {

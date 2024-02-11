@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'experimental-edge',
+};
+
 import { jsonClientWithoutToken } from 'src/lib/apiClients';
 import { generateToken } from "src/utils/generateToken";
 

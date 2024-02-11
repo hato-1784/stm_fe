@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'experimental-edge',
+};
+
 import { jsonClientWithAccessToken } from 'src/lib/apiClients';
 import { Stm, StmCreate, StmCreateWithToken, StmUpdate, StmUpdateWithToken } from 'src/interfaces/stm';
 import { generateToken } from "src/utils/generateToken";

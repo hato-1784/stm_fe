@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'experimental-edge',
+};
+
 import { jsonClientWithAccessToken } from 'src/lib/apiClients';
 
 export const getUser = async () => {

@@ -212,7 +212,7 @@ const DetailPage = () => {
                       <Typography>氏名：</Typography>
                     </Grid>
                     <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                      <Typography>{data.first_name} {data.last_name}（{data.first_name_kana} {data.last_name_kana}）</Typography>
+                      <Typography>{data.last_name} {data.first_name}（{data.last_name_kana} {data.first_name_kana}）</Typography>
                     </Grid>
                     <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
                       <CopyToClipboardButton text={`${data.first_name} ${data.last_name}`} />

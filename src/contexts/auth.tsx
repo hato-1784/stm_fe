@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const res = await signIn(username, password);
       setUser(res.data);
-      Cookies.set('access_token', res.data.access_token);
-      Cookies.set('refresh_token', res.data.refresh_token);
+      Cookies.set('access_token', res.data.access_token, { secure: true });
+      Cookies.set('refresh_token', res.data.refresh_token, { secure: true });
       // ログインが成功したら /stm にリダイレクト
       router.push('/stm');
     } catch (err) {
@@ -90,8 +90,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signup = async (username: string, email: string, password: string) => {
     try {
       const res = await signUp(username, email, password);
-      Cookies.set('access_token', res.data.access_token);
-      Cookies.set('refresh_token', res.data.refresh_token);
+      Cookies.set('access_token', res.data.access_token, { secure: true });
+      Cookies.set('refresh_token', res.data.refresh_token, { secure: true });
       router.push('/stm');
     } catch (err) {
       alert('サインアップに失敗しました');

@@ -1,9 +1,10 @@
 import axios, { AxiosInstance } from "axios";
 import Cookies from "js-cookie";
+import { host } from 'config';
 
 // 共通のaxiosインスタンス設定
 const commonAxiosConfig = {
-  baseURL: "http://localhost:8000",
+  baseURL: host,
   withCredentials: true,
   timeout: 3000,
 };
@@ -28,7 +29,7 @@ function applyResponseInterceptors(client: AxiosInstance) {
         const refreshResponse = await client.get('/token/refresh_access_token');
         if (refreshResponse.status === 200) {
           // 新しいaccess_tokenを保存
-          Cookies.set('access_token', refreshResponse.data.access_token);
+          Cookies.set('access_token', refreshResponse.data.access_token, { secure: true });
           // オリジナルのリクエストを新しいaccess_tokenで再試行
           response.config.headers['Authorization'] = `Bearer ${refreshResponse.data.access_token}`;
           return client(response.config);

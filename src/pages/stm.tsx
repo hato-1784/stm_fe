@@ -161,6 +161,7 @@ const StmPage = () => {
         <DataGrid
           rows={stm}
           columns={columns}
+          sortingMode="server"
           sx={{
             width: '100%',
             // muiのデフォルトのスタイルを変更

@@ -1,16 +1,17 @@
-import React from "react";
-import Head from "next/head";
-import { CssBaseline, Container, Box, createTheme, ThemeProvider } from '@mui/material';
+import { GetServerSideProps } from 'next';
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    redirect: {
+      destination: '/signin',
+      permanent: false, // 一時的なリダイレクトの場合はfalseに設定
+    },
+  };
+};
 
 const Index = () => {
-  return (
-    <>
-      <Head>
-        <title>Top</title>
-      </Head>
-      <p>test</p>
-    </>
-  );
-}
+  // コンポーネントの内容はリダイレクトにより表示されないため、必要最小限に保つ
+  return null;
+};
 
 export default Index;

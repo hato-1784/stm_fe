@@ -128,10 +128,16 @@ export interface StmUpdate {
   security_number: string;
   status: string;
   whole_life_insurance_flag: boolean;
-  client_request_token: string;
 }
 
 export interface StmUpdateWithToken extends StmUpdate {
   client_request_token: string;
 }
 
+export interface StmDelete {
+  version: number;
+}
+
+export interface StmDeleteWithToken extends StmDelete {
+  client_request_token: string;
+}

@@ -43,23 +43,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }>(null);
 
   useEffect(() => {
-    const accessToken = Cookies.get('access_token');
-    if (accessToken) {
-      getUser().then((res) => {
-        if (res.error) {
-          console.log(res.message);
-          return;
+    const checkUserAndRedirect = async () => {
+      const accessToken = Cookies.get('access_token');
+      if (accessToken) {
+        // accessTokenがある場合、ユーザー情報を取得
+        try {
+          const res = await getUser();
+          if (res.error) {
+            console.log(res.message);
+            return;
+          }
+          setUser(res.data);
+          // ユーザー情報取得後、またはaccessTokenがある場合、/stmにリダイレクト
+          if (router.pathname === '/') {
+            router.push('/stm');
+          }
+        } catch (err) {
+          console.log(err);
         }
-        setUser(res.data);
-        if (router.pathname === '/') {
-          router.push('/stm');
-        }
-      }).catch((err) => {
-        console.log(err);
-      });
-    }
-    // []に値を設定すると、その値が変更されたときだけuseEffectが実行される
-  }, [Cookies.get('access_token')]);
+      } else if (router.pathname === '/') {
+        // accessTokenがない場合は何もしない（Topページを表示）
+        // このelseブロックは、必要に応じて削除またはコメントアウトしても良い
+      }
+    };
+
+    checkUserAndRedirect();
+    // router.pathname または accessToken が変更されるたびに実行
+  }, [router.pathname, Cookies.get('access_token')]);
 
   const signin = async (username: string, password: string) => {
     try {

@@ -1,35 +1,74 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from 'next/router';
+import { useAuth } from 'src/contexts/auth';
 import { Stm } from 'src/interfaces/stm';
-import { stmList } from 'src/pages/api/stm';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { stmList, stmDeleteMultiple } from 'src/pages/api/stm'; // Updated to include stmDeleteMultiple
+import { DataGrid, GridColDef, GridValueGetterParams, jaJP } from '@mui/x-data-grid';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import PostalMarkIcon from 'src/icons/PostalMarkIcon';
 import CircularProgress from '@mui/material/CircularProgress'; // ローディングインジケーター用のコンポーネントをインポート
-import Button from '@mui/material/Button';
+import CustomNoRowsOverlay from 'src/components/stm/custom_no_rows_overlay';
+import CustomToolbar from 'src/components/stm/custom_toolbar';
+import TablePagination from '@mui/material/TablePagination';
+import Checkbox from '@mui/material/Checkbox'; // Checkboxをインポート
 
 const StmPage = () => {
+  const username = useAuth().user?.username;
   const [stm, setStm] = useState<Stm[]>([]);
   const [isLoading, setIsLoading] = useState(true); // データ読み込み状態を追跡するための状態変数
   const router = useRouter();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [editMode, setEditMode] = useState(false); // 編集モードの状態を追加
+  const [selectedData, setSelectedData] = useState<Stm[]>([]); // 選択されたデータを管理
+
+  const fetchData = async () => {
+    setIsLoading(true); // データ読み込み開始
+    try {
+      const res = await stmList();
+      setStm(res);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false); // データ読み込み完了またはエラー発生後にローディング状態を解除
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true); // データ読み込み開始
-      stmList().then((res) => {
-        console.log(res);
-        setStm(res);
-        setIsLoading(false); // データ読み込み完了
-      }).catch((err) => {
-        console.log(err);
-        setIsLoading(false); // エラーが発生しても読み込み状態を解除
-      });
-    };
     fetchData();
   }, []);
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0); // ページサイズを変更するときは1ページ目に戻る
+  };
+
+  // 編集モードの状態を切り替える関数
+  const toggleEditMode = () => {
+    setEditMode(!editMode);
+  };
+
+  // 選択された行のIDを使用して削除処理を行う関数
+  const handleDelete = async () => {
+    if (selectedData.length > 0) {
+      try {
+        await stmDeleteMultiple(selectedData, username as string); // 'username'は適切な値に置き換えてください
+        setSelectedData([]); // 選択状態をクリア
+        await fetchData(); // 削除後にデータを再取得
+        // 成功した場合のメッセージ表示など
+      } catch (error) {
+        console.error(error);
+        // エラー処理
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -59,12 +98,30 @@ const StmPage = () => {
       hideable: false,
       disableColumnMenu: true,
       flex: 1,
-      renderCell: (params) => (
-        <ArrowForwardIosIcon
-          style={{ cursor: 'pointer', color: '#CCCCCC' }}
-          onClick={() => router.push(`/stm/${params.row.id}`)}
-        />
-      ),
+      renderCell: (params) => {
+        if (editMode) {
+          const isChecked = selectedData.some(data => data.id === params.row.id);
+          return (
+            <Checkbox
+              color="primary"
+              checked={isChecked}
+              onChange={(event) => {
+                const newData = isChecked
+                  ? selectedData.filter(data => data.id !== params.row.id)
+                  : [...selectedData, params.row];
+                setSelectedData(newData);
+              }}
+            />
+          );
+        } else {
+          return (
+            <ArrowForwardIosIcon
+              style={{ cursor: 'pointer', color: '#CCCCCC' }}
+              onClick={() => router.push(`/stm/${params.row.id}`)}
+            />
+          );
+        }
+      },
     },
     {
       field: 'fullName',
@@ -155,13 +212,26 @@ const StmPage = () => {
         <Head>
           <title>STM</title>
         </Head>
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-          <Button variant="contained" color="success" onClick={() => router.push('/stm/add_stm_data')}>追加</Button>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <CustomToolbar editMode={editMode} setEditMode={toggleEditMode} selectedData={selectedData} onDelete={handleDelete} />
+          <TablePagination
+            component="div"
+            count={stm.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[20, 50, 100]}
+          />
         </Box>
         <DataGrid
-          rows={stm}
+          rows={stm.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
           columns={columns}
-          sortingMode="server"
+          rowCount={stm.length}
+          sortingMode="client"
+          autoHeight
+          hideFooter={true}
+          hideFooterPagination={true}
           sx={{
             width: '100%',
             // muiのデフォルトのスタイルを変更
@@ -174,11 +244,14 @@ const StmPage = () => {
             '.MuiDataGrid-columnHeader:focus-within': {
               outline: 'none',
             },
+            '--DataGrid-overlayHeight': '300px',
           }}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
+          pagination
+          slots={{
+            noRowsOverlay: CustomNoRowsOverlay,
+            // toolbar: () => <CustomToolbar editMode={editMode} setEditMode={toggleEditMode} selectedData={selectedData} onDelete={handleDelete} />,
           }}
-          pageSizeOptions={[10, 50, 100]}
+          localeText={jaJP.components.MuiDataGrid.defaultProps.localeText}
         />
       </Box>
     </Container>
@@ -186,4 +259,3 @@ const StmPage = () => {
 };
 
 export default StmPage;
-

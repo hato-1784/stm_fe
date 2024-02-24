@@ -3,7 +3,7 @@ export const config = {
 };
 
 import { jsonClientWithAccessToken } from 'src/lib/apiClients';
-import { Stm, StmCreate, StmCreateWithToken, StmUpdate, StmUpdateWithToken } from 'src/interfaces/stm';
+import { Stm, StmCreate, StmCreateWithToken, StmUpdate, StmUpdateWithToken, StmDelete, StmDeleteWithToken } from 'src/interfaces/stm';
 import { generateToken } from "src/utils/generateToken";
 
 export const stmList = async () => {
@@ -52,6 +52,25 @@ export const stmUpdate = async (stm_id: string, username: string, data: StmUpdat
   try {
     const response = await apiClient.put(`/stm/${stm_id}`, dataWithTOken);
     return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const stmDeleteMultiple = async (data: Stm[], username: string): Promise<Stm[]> => {
+  const apiClient = jsonClientWithAccessToken();
+  const deletePromises = data.map(item =>
+    apiClient.delete(`/stm/${item.id}`, {
+      data: {
+        client_request_token: generateToken(username),
+        version: item.version, // versionもエンドポイントに渡す
+      }
+    })
+  );
+  try {
+    const responses = await Promise.all(deletePromises);
+    return responses.map(response => response.data);
   } catch (error) {
     console.error(error);
     throw error;

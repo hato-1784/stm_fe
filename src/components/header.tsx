@@ -7,13 +7,17 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useRouter } from 'next/router'; // useRouterをインポート
+import Cookies from 'js-cookie';
 
 const Header = () => {
   const { user, signout } = useAuth();
+  const router = useRouter(); // useRouterフックを使用
 
   const handleSignOut = async () => {
     try {
-      signout();
+      await signout();
+      router.push('/signin'); // サインアウト後にサインインページにリダイレクト
     } catch (error) {
       console.error("Sign out failed:", error);
     }
@@ -32,15 +36,25 @@ const Header = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          {/* Typographyをクリック可能にし、onClickでホームに遷移するように変更 */}
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => {
+            const accessToken = Cookies.get('access_token');
+            if (accessToken) {
+              // ログイン済みであれば/stmにリダイレクト
+              router.push('/stm');
+            } else {
+              // ログインしていない場合は/にリダイレクト
+              router.push('/');
+            }
+          }}>
             STM
           </Typography>
           {user ? (
             <Button color="inherit" onClick={handleSignOut}>Sign out</Button>
           ) : (
             <>
-              <Button color="inherit" href="/signin">Sign in</Button>
-              <Button color="inherit" href="/signup">Sign up</Button>
+              <Button color="inherit" onClick={() => router.push('/signin')}>Sign in</Button>
+              <Button color="inherit" onClick={() => router.push('/signup')}>Sign up</Button>
             </>
           )}
         </Toolbar>

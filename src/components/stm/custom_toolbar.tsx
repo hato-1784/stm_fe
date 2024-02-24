@@ -67,7 +67,7 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete }: Custom
             <AddBoxIcon /> {/* データ追加 */}
           </IconButton>
           <IconButton onClick={() => onDelete(selectedData)}>
-            <DeleteOutlineIcon /> {/* データ削除 */}
+            <DeleteOutlineIcon style={{ color: selectedData.length > 0 ? 'red' : 'inherit' }} />
           </IconButton>
         </div>
       )}

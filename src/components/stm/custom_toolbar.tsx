@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close'; // 編集モード終了ア�
 import { useRouter } from 'next/router'; // Next.jsのルーターフックをインポート
 import { useGridApi } from './data_grid';
 import Box from '@mui/material/Box'; // MUIのBoxコンポーネントをインポート
+import Button from '@mui/material/Button'; // Buttonコンポーネントをインポート
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search'; // 検索アイコンをインポート
@@ -105,13 +106,23 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
         </>
       )}
       {editMode && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
           <IconButton onClick={toggleEditMode}>
             <CloseIcon /> {/* 編集モード終了 */}
           </IconButton>
-          <IconButton onClick={() => onDelete(selectedData)}>
-            <DeleteOutlineIcon style={{ color: selectedData.length > 0 ? 'red' : 'inherit' }} />
-          </IconButton>
+          <Button
+            variant="contained"
+            onClick={() => onDelete(selectedData)}
+            disabled={selectedData.length === 0} // 選択されていない場合はボタンを無効化
+            style={{
+              backgroundColor: selectedData.length > 0 ? 'red' : 'grey', // 選択されている場合は赤色、そうでなければグレー
+              color: 'white',
+              marginLeft: '8px', // マージンを適用してボタン間のスペースを確保
+              height: '28px',
+            }}
+          >
+            削除 {/* アイコンではなくテキストを表示 */}
+          </Button>
         </div>
       )}
     </Box>
@@ -119,3 +130,4 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
 };
 
 export default CustomToolbar;
+

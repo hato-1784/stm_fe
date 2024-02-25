@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useRouter } from 'next/router';
 import { Stm } from 'src/interfaces/stm';
 import { User } from 'src/interfaces/user';
-import { stmList, stmDeleteMultiple } from 'src/pages/api/stm'; // Updated to include stmDeleteMultiple
+import stmApi from 'src/pages/api/stm';
 import { DataGrid, GridColDef, GridValueGetterParams, jaJP } from '@mui/x-data-grid';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -28,7 +28,7 @@ const StmPage: React.FC<User> = ({ username }) => {
   const fetchData = async () => {
     setIsLoading(true); // データ読み込み開始
     try {
-      const res = await stmList();
+      const res = await stmApi.stmList();
       setStm(res);
     } catch (err) {
       console.log(err);
@@ -59,7 +59,7 @@ const StmPage: React.FC<User> = ({ username }) => {
   const handleDelete = async () => {
     if (selectedData.length > 0) {
       try {
-        await stmDeleteMultiple(selectedData, username as string);
+        await stmApi.stmDeleteMultiple(selectedData, username as string);
         setSelectedData([]); // 選択状態をクリア
         await fetchData(); // 削除後にデータを再取得
         // 成功した場合のメッセージ表示など

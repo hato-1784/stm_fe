@@ -8,6 +8,7 @@ import Cookies from 'js-cookie';
 
 interface AuthContextType {
   user: User | null;
+  isLoading: boolean;
   signin: (username: string, password: string) => Promise<void>;
   signout: () => void;
   signup: (username: string, email: string, password: string) => Promise<void>;
@@ -20,6 +21,7 @@ interface AuthProviderProps {
 // 新しいコンテキストを作成する（初期化）
 const AuthContext = React.createContext<AuthContextType>({
   user: null,
+  isLoading: true,
   signin: async () => { },
   signout: () => { },
   signup: async () => { },
@@ -32,9 +34,12 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  // isLoading状態を追加
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkUserAndRedirect = async () => {
+      setIsLoading(true); // ロード開始
       const accessToken = Cookies.get('access_token');
       if (accessToken) {
         // accessTokenがある場合、ユーザー情報を取得
@@ -56,11 +61,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // accessTokenがない場合は何もしない（Topページを表示）
         // このelseブロックは、必要に応じて削除またはコメントアウトしても良い
       }
+      setIsLoading(false); // ロード完了
     };
 
     checkUserAndRedirect();
     // router.pathname または accessToken が変更されるたびに実行
-  }, [router.pathname, Cookies.get('access_token')]);
+  }, [router, router.pathname]);
 
   const signin = async (username: string, password: string) => {
     try {
@@ -102,6 +108,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const value = {
     user,
+    isLoading,
     signin,
     signout,
     signup,

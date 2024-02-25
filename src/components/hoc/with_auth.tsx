@@ -4,21 +4,24 @@ import { useAuth } from 'src/contexts/auth';
 import { User } from 'src/interfaces/user';
 
 const withAuth = (WrappedComponent: ComponentType<User>) => {
-  return (props: User) => {
-    const { user } = useAuth();
+  const WithAuthComponent = (props: User) => {
+    const { user, isLoading } = useAuth();
     const router = useRouter();
+    console.log(user, isLoading);
 
     useEffect(() => {
-      if (!user) {
+      if (!isLoading && !user) {
         router.replace('/signin');
       }
-    }, [router, user]);
-
-    // userオブジェクトからuserNameを取得し、ラップされたコンポーネントに渡す
-    const userName = user?.username;
+    }, [router, user, isLoading]);
 
     return <WrappedComponent {...props} {...user} />;
   };
+
+  // HOCに表示名を設定
+  WithAuthComponent.displayName = `WithAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+
+  return WithAuthComponent;
 };
 
 export default withAuth;

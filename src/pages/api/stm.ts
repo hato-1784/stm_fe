@@ -76,3 +76,11 @@ export const stmDeleteMultiple = async (data: Stm[], username: string): Promise<
     throw error;
   }
 }
+
+export default {
+  stmList,
+  stmDetail,
+  stmCreate,
+  stmUpdate,
+  stmDeleteMultiple,
+}

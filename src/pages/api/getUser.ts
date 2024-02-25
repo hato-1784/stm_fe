@@ -17,3 +17,5 @@ export const getUser = async () => {
     return { data: null, error: true, message: 'An unknown error occurred' };
   }
 };
+
+export default getUser;

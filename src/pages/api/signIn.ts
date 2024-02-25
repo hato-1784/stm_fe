@@ -17,3 +17,5 @@ export async function signIn(username: string, password: string) {
     throw error;
   }
 }
+
+export default signIn;

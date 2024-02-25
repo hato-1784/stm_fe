@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import withAuth from 'src/components/hoc/with_auth';
 import { useRouter } from 'next/router';
-import { useAuth } from 'src/contexts/auth';
 import { User } from 'src/interfaces/user';
 import { StmCreate } from 'src/interfaces/stm';
-import { stmCreate } from 'src/pages/api/stm';
+import stmApi from 'src/pages/api/stm';
 import { Button, TextField, Container, Box, Grid, Paper, Typography, Divider, MenuItem } from '@mui/material';
 
 const CreateStmPage: React.FC<User> = ({ username }) => {
@@ -48,7 +47,7 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await stmCreate(username as string, formData);
+      await stmApi.stmCreate(username as string, formData);
       router.push('/stm'); // 成功したらSTMのリストページにリダイレクト
     } catch (error) {
       console.error(error);

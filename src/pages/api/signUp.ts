@@ -21,3 +21,5 @@ export async function signUp(username: string, email: string, password: string) 
     throw error;
   }
 }
+
+export default signUp;

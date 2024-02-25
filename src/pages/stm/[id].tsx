@@ -3,7 +3,7 @@ import withAuth from 'src/components/hoc/with_auth';
 import { useRouter } from 'next/router';
 import { User } from 'src/interfaces/user';
 import { Stm, StmUpdate } from 'src/interfaces/stm'; // StmUpdateインタフェースをインポート
-import { stmDetail, stmUpdate } from 'src/pages/api/stm'; // stmUpdate関数をインポート
+import stmApi from 'src/pages/api/stm';
 import { Container, Typography, Grid, Paper, Divider, Box, CircularProgress, IconButton, Tooltip, TextField, MenuItem } from '@mui/material';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import EditIcon from '@mui/icons-material/Edit';
@@ -60,7 +60,7 @@ const DetailPage: React.FC<User> = ({ username }) => {
       }
       try {
         console.log("useEffect");
-        const res = await stmDetail(id as string);
+        const res = await stmApi.stmDetail(id as string);
         setData(res);
         setFormData(res);
       } catch (err) {
@@ -80,8 +80,8 @@ const DetailPage: React.FC<User> = ({ username }) => {
     console.log("handleSaveClick");
     if (id && formData) {
       try {
-        await stmUpdate(id as string, username as string, formData);
-        const res = await stmDetail(id as string);
+        await stmApi.stmUpdate(id as string, username as string, formData);
+        const res = await stmApi.stmDetail(id as string);
         setData(res); // データを更新
         setFormData(res);
         setEditMode(null); // 編集モードを解除

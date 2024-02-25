@@ -5,8 +5,6 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter } from 'next/router'; // useRouterをインポート
 import Cookies from 'js-cookie';
 
@@ -48,7 +46,7 @@ const Header = () => {
         <Toolbar sx={{ justifyContent: 'space-between' }}> {/* Toolbar全体のスタイルを調整 */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {/* Typographyの横幅を文字サイズに合わせて調整 */}
-            <Typography variant="h6" component="div" sx={{ cursor: 'pointer' }} onClick={() => {
+            <Typography variant="h5" component="div" sx={{ cursor: 'pointer' }} onClick={() => {
               const accessToken = Cookies.get('access_token');
               if (accessToken) {
                 // ログイン済みであれば/stmにリダイレクト

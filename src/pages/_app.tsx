@@ -15,7 +15,7 @@ const theme = createTheme({
   },
   mixins: {
     toolbar: {
-      minHeight: 42, // ツールバーの最小高さを設定
+      minHeight: 48, // ツールバーの最小高さを設定
     },
   },
   // ここに他のテーマ設定を追加できます

@@ -89,8 +89,11 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
             />
           </Search>
           <div style={{ display: 'flex' }}>
+            <IconButton onClick={handleAddClick}>
+              <AddBoxIcon /> {/* データ追加 */}
+            </IconButton>
             <IconButton onClick={toggleEditMode}>
-              <EditIcon />
+              <DeleteOutlineIcon />
             </IconButton>
             <IconButton>
               <CloudUploadIcon />
@@ -105,9 +108,6 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
         <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
           <IconButton onClick={toggleEditMode}>
             <CloseIcon /> {/* 編集モード終了 */}
-          </IconButton>
-          <IconButton onClick={handleAddClick}>
-            <AddBoxIcon /> {/* データ追加 */}
           </IconButton>
           <IconButton onClick={() => onDelete(selectedData)}>
             <DeleteOutlineIcon style={{ color: selectedData.length > 0 ? 'red' : 'inherit' }} />

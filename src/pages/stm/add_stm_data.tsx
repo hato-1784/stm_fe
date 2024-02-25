@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import withAuth from 'src/components/hoc/with_auth';
 import { useRouter } from 'next/router';
 import { useAuth } from 'src/contexts/auth';
+import { User } from 'src/interfaces/user';
 import { StmCreate } from 'src/interfaces/stm';
 import { stmCreate } from 'src/pages/api/stm';
 import { Button, TextField, Container, Box, Grid, Paper, Typography, Divider, MenuItem } from '@mui/material';
 
-const CreateStmPage = () => {
-  const username = useAuth().user?.username;
+const CreateStmPage: React.FC<User> = ({ username }) => {
   const [formData, setFormData] = useState<StmCreate>({
     // 初期値を設定
     address: '',
@@ -462,4 +463,4 @@ const CreateStmPage = () => {
   );
 };
 
-export default CreateStmPage;
+export default withAuth(CreateStmPage);

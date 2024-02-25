@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import withAuth from 'src/components/hoc/with_auth';
 import Head from "next/head";
 import { useRouter } from 'next/router';
-import { useAuth } from 'src/contexts/auth';
 import { Stm } from 'src/interfaces/stm';
+import { User } from 'src/interfaces/user';
 import { stmList, stmDeleteMultiple } from 'src/pages/api/stm'; // Updated to include stmDeleteMultiple
 import { DataGrid, GridColDef, GridValueGetterParams, jaJP } from '@mui/x-data-grid';
 import Container from '@mui/material/Container';
@@ -15,8 +16,7 @@ import CustomToolbar from 'src/components/stm/custom_toolbar';
 import TablePagination from '@mui/material/TablePagination';
 import Checkbox from '@mui/material/Checkbox'; // Checkboxをインポート
 
-const StmPage = () => {
-  const username = useAuth().user?.username;
+const StmPage: React.FC<User> = ({ username }) => {
   const [stm, setStm] = useState<Stm[]>([]);
   const [isLoading, setIsLoading] = useState(true); // データ読み込み状態を追跡するための状態変数
   const router = useRouter();
@@ -59,7 +59,7 @@ const StmPage = () => {
   const handleDelete = async () => {
     if (selectedData.length > 0) {
       try {
-        await stmDeleteMultiple(selectedData, username as string); // 'username'は適切な値に置き換えてください
+        await stmDeleteMultiple(selectedData, username as string);
         setSelectedData([]); // 選択状態をクリア
         await fetchData(); // 削除後にデータを再取得
         // 成功した場合のメッセージ表示など
@@ -258,4 +258,4 @@ const StmPage = () => {
   );
 };
 
-export default StmPage;
+export default withAuth(StmPage);

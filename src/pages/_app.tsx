@@ -8,7 +8,10 @@ import { jaJP } from '@mui/material/locale';
 // 日本語のテーマを作成
 const theme = createTheme({
   typography: {
-    fontSize: 12,
+    fontSize: 14,
+    h4: {
+      fontSize: '1.6rem',
+    },
   },
   mixins: {
     toolbar: {

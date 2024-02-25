@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import withAuth from 'src/components/hoc/with_auth';
 import { useRouter } from 'next/router';
-import { useAuth } from 'src/contexts/auth';
+import { User } from 'src/interfaces/user';
 import { Stm, StmUpdate } from 'src/interfaces/stm'; // StmUpdateインタフェースをインポート
 import { stmDetail, stmUpdate } from 'src/pages/api/stm'; // stmUpdate関数をインポート
 import { Container, Typography, Grid, Paper, Divider, Box, CircularProgress, IconButton, Tooltip, TextField, MenuItem } from '@mui/material';
@@ -43,9 +44,8 @@ const CopyToClipboardButton = ({ text }: CopyToClipboardButtonProps) => {
   );
 };
 
-const DetailPage = () => {
+const DetailPage: React.FC<User> = ({ username }) => {
   const router = useRouter();
-  const username = useAuth().user?.username;
   const { id } = router.query;
   const [data, setData] = useState<Stm | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,14 +102,23 @@ const DetailPage = () => {
 
   if (isLoading) {
     return (
-      <Container maxWidth="lg" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
+      <Container component="main">
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
+          <CircularProgress /> {/* ローディングインジケーターを表示 */}
+        </Box>
       </Container>
     );
   }
 
   if (!data) {
-    return <Container maxWidth="lg">データが見つかりません。</Container>;
+    return;
   }
 
   return (
@@ -692,4 +701,4 @@ const DetailPage = () => {
   );
 };
 
-export default DetailPage;
+export default withAuth(DetailPage);

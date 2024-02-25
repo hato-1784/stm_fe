@@ -1,17 +1,13 @@
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { useRouter } from "next/router";
+import { User } from 'src/interfaces/user';
 import { signIn } from 'src/pages/api/signIn';
 import { signUp } from 'src/pages/api/signUp';
 import { getUser } from 'src/pages/api/getUser';
 import Cookies from 'js-cookie';
 
 interface AuthContextType {
-  user: null | {
-    username: string;
-    email: string;
-    version: number;
-    client_request_token: string;
-  };
+  user: User | null;
   signin: (username: string, password: string) => Promise<void>;
   signout: () => void;
   signup: (username: string, email: string, password: string) => Promise<void>;
@@ -35,12 +31,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter();
-  const [user, setUser] = useState<null | {
-    username: string;
-    email: string;
-    version: number;
-    client_request_token: string;
-  }>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkUserAndRedirect = async () => {

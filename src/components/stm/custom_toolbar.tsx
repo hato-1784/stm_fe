@@ -46,7 +46,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
     paddingLeft: `calc(1em + ${theme.spacing(2.5)})`,
-    width: '30ch', // 常に拡大された状態の幅を指定
+    width: '30ch', // 検索バーの幅を調整
   },
 }));
 
@@ -55,9 +55,11 @@ interface CustomToolbarProps {
   setEditMode: (editMode: boolean) => void;
   selectedData: Stm[];
   onDelete: (selectedData: Stm[]) => void;
+  onSearchQueryChange: (query: string) => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void; // onKeyDownプロパティを追加
 }
 
-const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete }: CustomToolbarProps) => {
+const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearchQueryChange, onKeyDown }: CustomToolbarProps) => {
   const { apiRef } = useGridApi();
   const router = useRouter();
 
@@ -82,6 +84,8 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete }: Custom
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
+              onChange={(e) => onSearchQueryChange((e.target as HTMLInputElement).value)}
+              onKeyDown={onKeyDown} // onKeyDownイベントハンドラを使用
             />
           </Search>
           <div style={{ display: 'flex' }}>

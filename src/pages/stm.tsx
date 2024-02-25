@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import withAuth from 'src/components/hoc/with_auth';
 import Head from "next/head";
 import { useRouter } from 'next/router';
@@ -18,6 +18,8 @@ import Checkbox from '@mui/material/Checkbox'; // Checkboxをインポート
 
 const StmPage: React.FC<User> = ({ username }) => {
   const [stm, setStm] = useState<Stm[]>([]);
+  const [filteredStm, setFilteredStm] = useState<Stm[]>([]); // 検索結果を格納するための状態
+  const [searchQuery, setSearchQuery] = useState(''); // 検索クエリの状態
   const [isLoading, setIsLoading] = useState(true); // データ読み込み状態を追跡するための状態変数
   const router = useRouter();
   const [page, setPage] = useState(0);
@@ -30,6 +32,7 @@ const StmPage: React.FC<User> = ({ username }) => {
     try {
       const res = await stmApi.stmList();
       setStm(res);
+      setFilteredStm(res); // データ取得後に検索結果を更新
     } catch (err) {
       console.log(err);
     } finally {
@@ -37,9 +40,42 @@ const StmPage: React.FC<User> = ({ username }) => {
     }
   };
 
+  // 検索処理
+  const handleSearch = useCallback(() => {
+    const lowercasedQuery = searchQuery.toLowerCase();
+    const filteredData = stm.filter(item =>
+      item.last_name.toLowerCase().includes(lowercasedQuery) ||
+      item.first_name.toLowerCase().includes(lowercasedQuery) ||
+      item.last_name_kana.toLowerCase().includes(lowercasedQuery) ||
+      item.first_name_kana.toLowerCase().includes(lowercasedQuery) ||
+      item.address.toLowerCase().includes(lowercasedQuery) ||
+      item.contact_information.toLowerCase().includes(lowercasedQuery)
+      // 他に検索対象としたいフィールドがあればここに追加
+    );
+    setFilteredStm(filteredData);
+  }, [searchQuery, stm]);
+
+  // エンターキーを押下したときに検索を実行するイベントハンドラ
+  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  }, [handleSearch]);
+
+  // 検索クエリが変更されたときに検索を実行
   useEffect(() => {
     fetchData();
+    // 初期読み込み時には検索を実行しない
   }, []);
+
+// 検索クエリ入力フィールドの変更イベントハンドラ
+const handleSearchQueryChange = useCallback((query: string) => {
+  setSearchQuery(query);
+  if (query === '') {
+    // 検索バーが空の場合はすべてのデータを表示
+    setFilteredStm(stm);
+  }
+}, [stm]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -213,7 +249,14 @@ const StmPage: React.FC<User> = ({ username }) => {
           <title>STM</title>
         </Head>
         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <CustomToolbar editMode={editMode} setEditMode={toggleEditMode} selectedData={selectedData} onDelete={handleDelete} />
+          <CustomToolbar
+            editMode={editMode}
+            setEditMode={toggleEditMode}
+            selectedData={selectedData}
+            onDelete={handleDelete}
+            onSearchQueryChange={handleSearchQueryChange}
+            onKeyDown={handleKeyDown} // エンターキー押下時のイベントハンドラを追加
+          />
           <TablePagination
             component="div"
             count={stm.length}
@@ -225,7 +268,7 @@ const StmPage: React.FC<User> = ({ username }) => {
           />
         </Box>
         <DataGrid
-          rows={stm.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
+          rows={filteredStm.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
           columns={columns}
           rowCount={stm.length}
           sortingMode="client"

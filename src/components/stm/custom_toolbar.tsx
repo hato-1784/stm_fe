@@ -51,22 +51,40 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 interface CustomToolbarProps {
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
+  deleteMode: boolean;
+  setDeleteMode: (deleteMode: boolean) => void;
+  exportMode: boolean;
+  setExportMode: (exportMode: boolean) => void;
   selectedData: Stm[];
   onDelete: (selectedData: Stm[]) => void;
+  onExport: (selectedData: Stm[]) => void;
   onSearchQueryChange: (query: string) => void;
   onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void; // onKeyDownプロパティを追加
   username: string;
   fetchData: () => Promise<void>;
 }
 
-const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearchQueryChange, onKeyDown, username, fetchData }: CustomToolbarProps) => {
+const CustomToolbar = ({
+  deleteMode: deleteMode,
+  setDeleteMode: setDeleteMode,
+  exportMode: exportMode,
+  setExportMode: setExportMode,
+  selectedData,
+  onDelete,
+  onExport,
+  onSearchQueryChange,
+  onKeyDown,
+  username, fetchData
+}: CustomToolbarProps) => {
   const router = useRouter();
   const fileInputRef = React.useRef<HTMLInputElement>(null); // ファイル入力のためのref
 
-  const toggleEditMode = () => {
-    setEditMode(!editMode);
+  const toggleDeleteMode = () => {
+    setDeleteMode(!deleteMode);
+  };
+
+  const toggleExportMode = () => {
+    setExportMode(!exportMode);
   };
 
   const handleAddClick = () => {
@@ -83,9 +101,6 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
     }
   };
 
-  const handleExport = () => {
-  };
-
   const triggerFileInput = () => {
     fileInputRef.current?.click(); // 非表示のファイル入力をトリガー
   };
@@ -98,7 +113,7 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
         style={{ display: 'none' }} // 入力を非表示にする
         onChange={handleFileUpload}
       />
-      {!editMode && (
+      {(!deleteMode && !exportMode) && (
         <>
           <Search>
             <SearchIconWrapper>
@@ -117,22 +132,22 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
             <IconButton onClick={handleAddClick}>
               <AddBoxIcon /> {/* データ追加 */}
             </IconButton>
-            <IconButton onClick={toggleEditMode}>
+            <IconButton onClick={toggleDeleteMode}>
               <DeleteOutlineIcon />
             </IconButton>
             <IconButton onClick={triggerFileInput}>
               <CloudUploadIcon />
             </IconButton>
-            <IconButton onClick={handleExport}>
+            <IconButton onClick={toggleExportMode}>
               <CloudDownloadIcon />
             </IconButton>
           </div>
         </>
       )}
-      {editMode && (
+      {deleteMode && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-          <IconButton onClick={toggleEditMode}>
-            <CloseIcon /> {/* 編集モード終了 */}
+          <IconButton onClick={toggleDeleteMode}>
+            <CloseIcon />
           </IconButton>
           <Button
             variant="contained"
@@ -146,6 +161,26 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
             }}
           >
             削除 {/* アイコンではなくテキストを表示 */}
+          </Button>
+        </div>
+      )}
+      {exportMode && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+          <IconButton onClick={toggleExportMode}>
+            <CloseIcon />
+          </IconButton>
+          <Button
+            variant="contained"
+            onClick={() => onExport(selectedData)}
+            disabled={selectedData.length === 0} // 選択されていない場合はボタンを無効化
+            style={{
+              backgroundColor: selectedData.length > 0 ? 'green' : 'grey', // 選択されている場合は赤色、そうでなければグレー
+              color: 'white',
+              marginLeft: '8px', // マージンを適用してボタン間のスペースを確保
+              height: '28px',
+            }}
+          >
+            エクスポート {/* アイコンではなくテキストを表示 */}
           </Button>
         </div>
       )}

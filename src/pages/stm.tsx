@@ -24,7 +24,8 @@ const StmPage: React.FC<User> = ({ username }) => {
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [editMode, setEditMode] = useState(false); // 編集モードの状態を追加
+  const [deleteMode, setDeleteMode] = useState(false); // 削除モードの状態を追加
+  const [exportMode, setExportMode] = useState(false); // Exportモードの状態を追加
   const [selectedData, setSelectedData] = useState<Stm[]>([]); // 選択されたデータを管理
   const [lastChecked, setLastChecked] = useState<number | null>(null); // 最後にチェックされた行のインデックスを保持
 
@@ -87,9 +88,14 @@ const StmPage: React.FC<User> = ({ username }) => {
     setPage(0); // ページサイズを変更するときは1ページ目に戻る
   };
 
-  // 編集モードの状態を切り替える関数
-  const toggleEditMode = () => {
-    setEditMode(!editMode);
+  // 削除モードの状態を切り替える関数
+  const toggleDeleteMode = () => {
+    setDeleteMode(!deleteMode);
+  };
+
+  // Exportモードの状態を切り替える関数
+  const toggleExportMode = () => {
+    setExportMode(!exportMode);
   };
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, id: string, index: number) => {
@@ -137,6 +143,29 @@ const StmPage: React.FC<User> = ({ username }) => {
     }
   };
 
+  // 選択された行のデータをエクスポートする関数
+  const handleExport = async () => {
+    if (selectedData.length > 0) {
+      // 選択されたデータをCSV形式でエクスポートする処理
+      const csvHeader = Object.keys(selectedData[0]).join(',') + '\n'; // ヘッダー行
+      const csvBody = selectedData
+        .map(row => {
+          return Object.values(row).join(',');
+        })
+        .join('\n');
+      const csvContent = csvHeader + csvBody;
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'exported_data.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   if (isLoading) {
     return (
       <Container component="main">
@@ -166,7 +195,7 @@ const StmPage: React.FC<User> = ({ username }) => {
       disableColumnMenu: true,
       flex: 1,
       renderCell: (params) => {
-        if (editMode) {
+        if (deleteMode || exportMode) {
           const isChecked = selectedData.some(data => data.id === params.row.id);
           const index = stm.findIndex(data => data.id === params.row.id); // 現在の行のインデックスを取得
           return (
@@ -277,10 +306,13 @@ const StmPage: React.FC<User> = ({ username }) => {
         </Head>
         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <CustomToolbar
-            editMode={editMode}
-            setEditMode={toggleEditMode}
+            deleteMode={deleteMode}
+            setDeleteMode={toggleDeleteMode}
+            exportMode={exportMode}
+            setExportMode={toggleExportMode}
             selectedData={selectedData}
             onDelete={handleDelete}
+            onExport={handleExport}
             onSearchQueryChange={handleSearchQueryChange}
             onKeyDown={handleKeyDown}
             username={username as string}

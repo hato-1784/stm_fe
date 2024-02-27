@@ -26,6 +26,7 @@ const StmPage: React.FC<User> = ({ username }) => {
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [editMode, setEditMode] = useState(false); // 編集モードの状態を追加
   const [selectedData, setSelectedData] = useState<Stm[]>([]); // 選択されたデータを管理
+  const [lastChecked, setLastChecked] = useState<number | null>(null); // 最後にチェックされた行のインデックスを保持
 
   const fetchData = async () => {
     setIsLoading(true); // データ読み込み開始
@@ -68,14 +69,14 @@ const StmPage: React.FC<User> = ({ username }) => {
     // 初期読み込み時には検索を実行しない
   }, []);
 
-// 検索クエリ入力フィールドの変更イベントハンドラ
-const handleSearchQueryChange = useCallback((query: string) => {
-  setSearchQuery(query);
-  if (query === '') {
-    // 検索バーが空の場合はすべてのデータを表示
-    setFilteredStm(stm);
-  }
-}, [stm]);
+  // 検索クエリ入力フィールドの変更イベントハンドラ
+  const handleSearchQueryChange = useCallback((query: string) => {
+    setSearchQuery(query);
+    if (query === '') {
+      // 検索バーが空の場合はすべてのデータを表示
+      setFilteredStm(stm);
+    }
+  }, [stm]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -90,6 +91,36 @@ const handleSearchQueryChange = useCallback((query: string) => {
   const toggleEditMode = () => {
     setEditMode(!editMode);
   };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, id: string, index: number) => {
+    let newSelectedData = [...selectedData];
+    const isChecked = event.target.checked;
+    const isShiftKey = (event.nativeEvent as MouseEvent).shiftKey;
+
+    if (isShiftKey && lastChecked !== null) {
+      const start = Math.min(lastChecked, index);
+      const end = Math.max(lastChecked, index);
+      const toBeToggled = stm.slice(start, end + 1);
+
+      if (isChecked) {
+        // 範囲内の未選択項目を選択
+        newSelectedData = [...new Set([...newSelectedData, ...toBeToggled])];
+      } else {
+        // 範囲内の選択項目を解除
+        newSelectedData = newSelectedData.filter(data => !toBeToggled.some(toggle => toggle.id === data.id));
+      }
+    } else {
+      if (isChecked) {
+        newSelectedData.push(stm.find(data => data.id === id)!);
+      } else {
+        newSelectedData = newSelectedData.filter(data => data.id !== id);
+      }
+      setLastChecked(index); // 最後にチェックされた行のインデックスを更新
+    }
+
+    setSelectedData(newSelectedData);
+  };
+
 
   // 選択された行のIDを使用して削除処理を行う関数
   const handleDelete = async () => {
@@ -137,16 +168,12 @@ const handleSearchQueryChange = useCallback((query: string) => {
       renderCell: (params) => {
         if (editMode) {
           const isChecked = selectedData.some(data => data.id === params.row.id);
+          const index = stm.findIndex(data => data.id === params.row.id); // 現在の行のインデックスを取得
           return (
             <Checkbox
               color="primary"
               checked={isChecked}
-              onChange={(event) => {
-                const newData = isChecked
-                  ? selectedData.filter(data => data.id !== params.row.id)
-                  : [...selectedData, params.row];
-                setSelectedData(newData);
-              }}
+              onChange={(event) => handleCheckboxChange(event, params.row.id, index)}
             />
           );
         } else {

@@ -1,14 +1,13 @@
 import React from 'react';
 import { Stm } from 'src/interfaces/stm';
+import stmApi from 'src/pages/api/stm';
 import IconButton from '@mui/material/IconButton';
-import EditIcon from '@mui/icons-material/Edit';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import AddBoxIcon from '@mui/icons-material/AddBox'; // データ追加アイコン
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'; // データ削除アイコン
 import CloseIcon from '@mui/icons-material/Close'; // 編集モード終了アイコン
 import { useRouter } from 'next/router'; // Next.jsのルーターフックをインポート
-import { useGridApi } from './data_grid';
 import Box from '@mui/material/Box'; // MUIのBoxコンポーネントをインポート
 import Button from '@mui/material/Button'; // Buttonコンポーネントをインポート
 import { styled, alpha } from '@mui/material/styles';
@@ -58,11 +57,13 @@ interface CustomToolbarProps {
   onDelete: (selectedData: Stm[]) => void;
   onSearchQueryChange: (query: string) => void;
   onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void; // onKeyDownプロパティを追加
+  username: string;
+  fetchData: () => Promise<void>;
 }
 
-const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearchQueryChange, onKeyDown }: CustomToolbarProps) => {
-  const { apiRef } = useGridApi();
+const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearchQueryChange, onKeyDown, username, fetchData }: CustomToolbarProps) => {
   const router = useRouter();
+  const fileInputRef = React.useRef<HTMLInputElement>(null); // ファイル入力のためのref
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
@@ -72,8 +73,31 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
     router.push('/stm/add_stm_data');
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+      await stmApi.stmUpload(file, username); // Buffer.from(buffer)の代わりにfileを直接使用
+      // アップロード後の処理（成功通知など）をここに追加
+      await fetchData();
+    }
+  };
+
+  const handleExport = () => {
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click(); // 非表示のファイル入力をトリガー
+  };
+
   return (
     <Box sx={{ justifyContent: 'space-between', pt: 0, display: 'flex' }}>
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }} // 入力を非表示にする
+        onChange={handleFileUpload}
+      />
       {!editMode && (
         <>
           <Search>
@@ -96,10 +120,10 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
             <IconButton onClick={toggleEditMode}>
               <DeleteOutlineIcon />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={triggerFileInput}>
               <CloudUploadIcon />
             </IconButton>
-            <IconButton>
+            <IconButton onClick={handleExport}>
               <CloudDownloadIcon />
             </IconButton>
           </div>
@@ -129,5 +153,4 @@ const CustomToolbar = ({ editMode, setEditMode, selectedData, onDelete, onSearch
   );
 };
 
-export default CustomToolbar;
-
+export default CustomToolbar

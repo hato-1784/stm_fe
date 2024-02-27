@@ -2,9 +2,10 @@ export const config = {
   runtime: 'experimental-edge',
 };
 
-import { jsonClientWithAccessToken } from 'src/lib/apiClients';
+import { jsonClientWithAccessToken, formClientWithAccessToken } from 'src/lib/apiClients';
 import { Stm, StmCreate, StmCreateWithToken, StmUpdate, StmUpdateWithToken, StmDelete, StmDeleteWithToken } from 'src/interfaces/stm';
 import { generateToken } from "src/utils/generateToken";
+import FormData from 'form-data';
 
 export const stmList = async () => {
   const apiClient = jsonClientWithAccessToken();
@@ -77,10 +78,25 @@ export const stmDeleteMultiple = async (data: Stm[], username: string): Promise<
   }
 }
 
+export const stmUpload = async (file: File, username: string): Promise<any> => {
+  const apiClient = formClientWithAccessToken();
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('client_request_token', generateToken(username));
+  try {
+    const response = await apiClient.post('/stm/upload', formData);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export default {
   stmList,
   stmDetail,
   stmCreate,
   stmUpdate,
   stmDeleteMultiple,
+  stmUpload,
 }

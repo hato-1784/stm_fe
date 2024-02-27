@@ -255,7 +255,9 @@ const handleSearchQueryChange = useCallback((query: string) => {
             selectedData={selectedData}
             onDelete={handleDelete}
             onSearchQueryChange={handleSearchQueryChange}
-            onKeyDown={handleKeyDown} // エンターキー押下時のイベントハンドラを追加
+            onKeyDown={handleKeyDown}
+            username={username as string}
+            fetchData={fetchData}
           />
           <TablePagination
             component="div"

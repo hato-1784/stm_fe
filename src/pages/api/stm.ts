@@ -61,17 +61,17 @@ export const stmUpdate = async (stm_id: string, username: string, data: StmUpdat
 
 export const stmDeleteMultiple = async (data: Stm[], username: string): Promise<Stm[]> => {
   const apiClient = jsonClientWithAccessToken();
-  const deletePromises = data.map(item =>
-    apiClient.delete(`/stm/${item.id}`, {
-      data: {
-        client_request_token: generateToken(username),
-        version: item.version, // versionもエンドポイントに渡す
-      }
-    })
-  );
+  const items = data.map(item => ({
+    id: item.id,
+    client_request_token: generateToken(username),
+    version: item.version,
+  }));
+
   try {
-    const responses = await Promise.all(deletePromises);
-    return responses.map(response => response.data);
+    const response = await apiClient.delete('/stm/', {
+      data: { items }
+    });
+    return response.data;
   } catch (error) {
     console.error(error);
     throw error;

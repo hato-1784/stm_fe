@@ -8,7 +8,8 @@ const Index = () => {
       <Head>
         <title>Top</title>
       </Head>
-      <p>test</p>
+      <p>トップページ</p>
+      <p>何を表示するか悩み中・・・</p>
     </>
   );
 }

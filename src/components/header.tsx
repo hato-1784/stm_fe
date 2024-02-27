@@ -35,8 +35,6 @@ const Header = () => {
         // ログイン済みであれば顧客一覧(/stm)に遷移
         router.push('/stm');
       }
-    } else {
-      router.push(`/${page.toLowerCase()}`); // それ以外のページは小文字にして遷移
     }
   };
 

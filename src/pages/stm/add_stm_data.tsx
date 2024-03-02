@@ -5,6 +5,7 @@ import { User } from 'src/interfaces/user';
 import { StmCreate } from 'src/interfaces/stm';
 import stmApi from 'src/pages/api/stm';
 import { Button, TextField, Container, Box, Grid, Paper, Typography, Divider, MenuItem } from '@mui/material';
+import { fetchAddressFromPostalCode } from 'src/utils/addressUtils'; // 関数をインポート
 
 const CreateStmPage: React.FC<User> = ({ username }) => {
   const [formData, setFormData] = useState<StmCreate>({
@@ -39,9 +40,23 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
   });
   const router = useRouter();
 
+  const handlePostalCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    // ハイフンを除去して純粋な数字のみを取得
+    const sanitizedValue = value.replace(/-/g, '');
+    if (sanitizedValue.length === 7) { // 日本の郵便番号は7桁
+      const address = await fetchAddressFromPostalCode(sanitizedValue);
+      setFormData({ ...formData, address });
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === 'postal_code') {
+      handlePostalCodeChange(e);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -56,7 +71,6 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
 
   return (
     <Container maxWidth="lg" style={{ padding: '24px' }}>
-      {/* <Grid container spacing={3}> */}
       <Grid container spacing={3} component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
         <Grid item xs={12} md={6}>
           <Box display="flex" flexDirection="column" height="100%">
@@ -82,7 +96,7 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                     <TextField
                       fullWidth
                       size="small"
-                      label="名前"
+                      label="名"
                       name="first_name"
                       onChange={handleChange}
                     />
@@ -188,6 +202,7 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                     size="small"
                     label="住所"
                     name="address"
+                    value={formData.address}
                     autoComplete="address"
                     autoFocus
                     onChange={handleChange}
@@ -218,7 +233,7 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
               </Box>
               <Divider />
               <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
-              <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <Typography>申込日：</Typography>
                 </Grid>
                 <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>

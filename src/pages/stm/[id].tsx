@@ -104,8 +104,8 @@ const DetailPage: React.FC<User> = ({ username }) => {
   };
 
   // 郵便番号から住所を自動入力する関数
-  const handlePostalCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const postalCode = e.target.value;
+  const handlePostalCodeChange = async (postalCode: string) => {
+    console.log("郵便番号：" + postalCode);
     setFormData((prev) => (prev ? { ...prev, postal_code: postalCode } : null));
 
     if (postalCode.length === 7) { // 日本の郵便番号は7桁
@@ -115,6 +115,7 @@ const DetailPage: React.FC<User> = ({ username }) => {
   };
 
   const handleChangeDateOfBirth = (value: string) => {
+    console.log("生年月日：" + value)
     if (value) {
       const age = calcAge(value);
       setFormData((prev) => (prev ? { ...prev, date_of_birth: value, age: age } : null));
@@ -235,12 +236,13 @@ const DetailPage: React.FC<User> = ({ username }) => {
                         <PatternFormat
                           customInput={TextField}
                           format="####/##/##"
-                          placeholder="YYYY/MM/DD"
-                          mask="  "
+                          placeholder="年/月/日"
+                          mask=" "
                           value={formData?.date_of_birth || ''}
                           onValueChange={(values) => {
-                            const { formattedValue } = values;
-                            handleChangeDateOfBirth(formattedValue);
+                            // const { formattedValue } = values;
+                            // handleChangeDateOfBirth(values.value);
+                            handleChangeDateOfBirth(values.formattedValue);
                           }}
                           fullWidth
                           size="small"
@@ -249,28 +251,31 @@ const DetailPage: React.FC<User> = ({ username }) => {
                           InputLabelProps={{
                             shrink: true,
                           }}
+                          InputProps={{
+                            style: { letterSpacing: '2px' } // テキストの間隔を調整
+                          }}
                         />
                       </Box>
-                  </Grid>
-                <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <Typography>性別：</Typography>
-                </Grid>
-                <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}> {/* minHeightを設定 */}
-                  <FormControl>
-                    <FormLabel id="gender-radio-buttons-group">性別</FormLabel>
-                    <RadioGroup
-                      row
-                      aria-labelledby="gender-radio-buttons-group"
-                      name="gender-radio-buttons-group"
-                      value={formData?.gender || ''}
-                      onChange={(e) => handleChange('gender', e.target.value)}
-                    >
-                      <FormControlLabel value="男性" control={<Radio size="small" />} label="男性" />
-                      <FormControlLabel value="女性" control={<Radio size="small" />} label="女性" />
-                      <FormControlLabel value="その他" control={<Radio size="small" />} label="その他" />
-                    </RadioGroup>
-                  </FormControl>
-                  {/* <TextField
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>性別：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}> {/* minHeightを設定 */}
+                      <FormControl>
+                        <FormLabel id="gender-radio-buttons-group">性別</FormLabel>
+                        <RadioGroup
+                          row
+                          aria-labelledby="gender-radio-buttons-group"
+                          name="gender-radio-buttons-group"
+                          value={formData?.gender || ''}
+                          onChange={(e) => handleChange('gender', e.target.value)}
+                        >
+                          <FormControlLabel value="男性" control={<Radio size="small" />} label="男性" />
+                          <FormControlLabel value="女性" control={<Radio size="small" />} label="女性" />
+                          <FormControlLabel value="その他" control={<Radio size="small" />} label="その他" />
+                        </RadioGroup>
+                      </FormControl>
+                      {/* <TextField
                         select
                         fullWidth
                         size="small"
@@ -283,513 +288,516 @@ const DetailPage: React.FC<User> = ({ username }) => {
                         <MenuItem value="女">女性</MenuItem>
                         <MenuItem value="other">その他</MenuItem>
                       </TextField> */}
-                </Grid>
-              </>
-              ) : (
-              <>
-                {/* 個人情報 */}
-                <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <Typography>氏名：</Typography>
-                </Grid>
-                <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <Typography>{data.last_name} {data.first_name}（{data.last_name_kana} {data.first_name_kana}）</Typography>
-                </Grid>
-                <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                  <CopyToClipboardButton text={`${data.first_name} ${data.last_name}`} />
-                </Grid>
-                <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <Typography>年齢：</Typography>
-                </Grid>
-                <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <Typography>{data.age}歳（{data.date_of_birth}生まれ）</Typography>
-                </Grid>
-                <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                  <CopyToClipboardButton text={`${data.age}歳（${data.date_of_birth}生まれ）`} />
-                </Grid>
-                <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <Typography>性別：</Typography>
-                </Grid>
-                <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <Typography>{data.gender}</Typography>
-                </Grid>
-                <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                  <CopyToClipboardButton text={data.gender} />
-                </Grid>
-              </>
+                    </Grid>
+                  </>
+                ) : (
+                  <>
+                    {/* 個人情報 */}
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>氏名：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.last_name} {data.first_name}（{data.last_name_kana} {data.first_name_kana}）</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={`${data.first_name} ${data.last_name}`} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>年齢：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.age}歳（{data.date_of_birth}生まれ）</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={`${data.age}歳（${data.date_of_birth}生まれ）`} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>性別：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.gender}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.gender} />
+                    </Grid>
+                  </>
                 )}
-            </Grid>
-          </Paper>
-        </Box>
-      </Grid>
+              </Grid>
+            </Paper>
+          </Box>
+        </Grid>
 
-      {/* 連絡先情報 */}
-      <Grid item xs={12} md={6}>
-        <Box display="flex" flexDirection="column" height="100%">
-          <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h4" gutterBottom>連絡先情報</Typography>
-              {editMode === 'contact' ? (
-                <Box>
-                  <IconButton onClick={handleSaveClick} size="small">
-                    <SaveIcon fontSize="small" />
+        {/* 連絡先情報 */}
+        <Grid item xs={12} md={6}>
+          <Box display="flex" flexDirection="column" height="100%">
+            <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h4" gutterBottom>連絡先情報</Typography>
+                {editMode === 'contact' ? (
+                  <Box>
+                    <IconButton onClick={handleSaveClick} size="small">
+                      <SaveIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton onClick={handleCancelClick} size="small">
+                      <CancelIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <IconButton onClick={() => handleEditClick('contact')} size="small">
+                    <EditIcon fontSize="small" />
                   </IconButton>
-                  <IconButton onClick={handleCancelClick} size="small">
-                    <CancelIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ) : (
-                <IconButton onClick={() => handleEditClick('contact')} size="small">
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-            <Divider />
-            <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
-              {editMode === 'contact' ? (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>郵便番号：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="郵便番号"
-                      variant="outlined"
-                      value={formData?.postal_code || ''}
-                      onChange={handlePostalCodeChange} // 郵便番号の変更ハンドラを設定
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>住所：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="住所"
-                      variant="outlined"
-                      value={formData?.address || ''}
-                      onChange={(e) => handleChange('address', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>連絡先：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="連絡先"
-                      variant="outlined"
-                      value={formData?.contact_information || ''}
-                      onChange={(e) => handleChange('contact_information', e.target.value)}
-                    />
-                  </Grid>
-                </>
-              ) : (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>郵便番号：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.postal_code}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.postal_code} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>住所：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.address}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.address} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>連絡先：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.contact_information}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.contact_information} />
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </Paper>
-        </Box>
-      </Grid>
-
-      {/* 契約情報 */}
-      <Grid item xs={12} md={6}>
-        <Box display="flex" flexDirection="column" height="100%">
-          <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h4" gutterBottom>契約情報</Typography>
-              {editMode === 'contract' ? (
-                <Box>
-                  <IconButton onClick={handleSaveClick} size="small">
-                    <SaveIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton onClick={handleCancelClick} size="small">
-                    <CancelIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ) : (
-                <IconButton onClick={() => handleEditClick('contract')} size="small">
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-            <Divider />
-            <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
-              {editMode === 'contract' ? (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>申込日：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="申込日"
-                      variant="outlined"
-                      value={formData?.application_date || ''}
-                      onChange={(e) => handleChange('application_date', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>保険種別：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="保険種別"
-                      variant="outlined"
-                      value={formData?.insurance_type || ''}
-                      onChange={(e) => handleChange('insurance_type', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>証券番号：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="証券番号"
-                      variant="outlined"
-                      value={formData?.security_number || ''}
-                      onChange={(e) => handleChange('security_number', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>保険期間：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Box display="flex" gap={2}>
+                )}
+              </Box>
+              <Divider />
+              <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
+                {editMode === 'contact' ? (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>郵便番号：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <PatternFormat
+                        customInput={TextField}
+                        format="### - ####"
+                        mask=" "
+                        fullWidth
+                        size="small"
+                        label="郵便番号"
+                        variant="outlined"
+                        value={formData?.postal_code || ''}
+                        onValueChange={(values) => handlePostalCodeChange(values.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>住所：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                       <TextField
                         fullWidth
                         size="small"
-                        label="保険開始日"
+                        label="住所"
                         variant="outlined"
-                        value={formData?.insurance_policy_start_date || ''}
-                        onChange={(e) => handleChange('insurance_policy_start_date', e.target.value)}
+                        value={formData?.address || ''}
+                        onChange={(e) => handleChange('address', e.target.value)}
                       />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>連絡先：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                       <TextField
                         fullWidth
                         size="small"
-                        label="保険終了日"
+                        label="連絡先"
                         variant="outlined"
-                        value={formData?.insurance_policy_end_date || ''}
-                        onChange={(e) => handleChange('insurance_policy_end_date', e.target.value)}
+                        value={formData?.contact_information || ''}
+                        onChange={(e) => handleChange('contact_information', e.target.value)}
                       />
-                    </Box>
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>保険料：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Box display="flex" gap={2}>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="保険料"
-                        variant="outlined"
-                        value={formData?.insurance_premium || ''}
-                        onChange={(e) => handleChange('insurance_premium', e.target.value)}
-                      />
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="支払方法"
-                        variant="outlined"
-                        value={formData?.payment_method || ''}
-                        onChange={(e) => handleChange('payment_method', e.target.value)}
-                      />
-                    </Box>
-                  </Grid>
-                </>
-              ) : (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>申込日：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.application_date}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.address} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>保険種別：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.insurance_type}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.insurance_type} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>証券番号：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.security_number}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.security_number} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>保険期間：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.insurance_policy_start_date} ～ {data.insurance_policy_end_date}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.insurance_policy_start_date} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>保険料：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.insurance_premium}円（{data.payment_method}）</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.insurance_policy_start_date} />
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </Paper>
-        </Box>
-      </Grid>
+                    </Grid>
+                  </>
+                ) : (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>郵便番号：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.postal_code}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.postal_code} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>住所：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.address}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.address} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>連絡先：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.contact_information}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.contact_information} />
+                    </Grid>
+                  </>
+                )}
+              </Grid>
+            </Paper>
+          </Box>
+        </Grid>
 
-      {/* 営業情報 */}
-      <Grid item xs={12} md={6}>
-        <Box display="flex" flexDirection="column" height="100%">
-          <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h4" gutterBottom>営業情報</Typography>
-              {editMode === 'sales' ? (
-                <Box>
-                  <IconButton onClick={handleSaveClick} size="small">
-                    <SaveIcon fontSize="small" />
+        {/* 契約情報 */}
+        <Grid item xs={12} md={6}>
+          <Box display="flex" flexDirection="column" height="100%">
+            <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h4" gutterBottom>契約情報</Typography>
+                {editMode === 'contract' ? (
+                  <Box>
+                    <IconButton onClick={handleSaveClick} size="small">
+                      <SaveIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton onClick={handleCancelClick} size="small">
+                      <CancelIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <IconButton onClick={() => handleEditClick('contract')} size="small">
+                    <EditIcon fontSize="small" />
                   </IconButton>
-                  <IconButton onClick={handleCancelClick} size="small">
-                    <CancelIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ) : (
-                <IconButton onClick={() => handleEditClick('sales')} size="small">
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-            <Divider />
-            <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
-              {editMode === 'sales' ? (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>初回面談日：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="初回面談日"
-                      variant="outlined"
-                      value={formData?.first_interview_date || ''}
-                      onChange={(e) => handleChange('first_interview_date', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>AP：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="AP"
-                      variant="outlined"
-                      value={formData?.annual_premium || ''}
-                      onChange={(e) => handleChange('annual_premium', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>AC：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="AC"
-                      variant="outlined"
-                      value={formData?.annualized_premium_equivalent || ''}
-                      onChange={(e) => handleChange('annualized_premium_equivalent', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>訪問回数：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="訪問回数"
-                      variant="outlined"
-                      value={formData?.number_of_visits || ''}
-                      onChange={(e) => handleChange('number_of_visits', e.target.value)}
-                    />
-                  </Grid>
-                </>
-              ) : (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>初回面談日：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.first_interview_date}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={data.first_interview_date} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>AP：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.annual_premium}円</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={`${data.annual_premium}`} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>AC：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.annualized_premium_equivalent}円</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={`${data.annualized_premium_equivalent}`} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>訪問回数：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.number_of_visits}回</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={`${data.number_of_visits}`} />
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </Paper>
-        </Box>
-      </Grid>
+                )}
+              </Box>
+              <Divider />
+              <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
+                {editMode === 'contract' ? (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>申込日：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="申込日"
+                        variant="outlined"
+                        value={formData?.application_date || ''}
+                        onChange={(e) => handleChange('application_date', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>保険種別：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="保険種別"
+                        variant="outlined"
+                        value={formData?.insurance_type || ''}
+                        onChange={(e) => handleChange('insurance_type', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>証券番号：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="証券番号"
+                        variant="outlined"
+                        value={formData?.security_number || ''}
+                        onChange={(e) => handleChange('security_number', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>保険期間：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Box display="flex" gap={2}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="保険開始日"
+                          variant="outlined"
+                          value={formData?.insurance_policy_start_date || ''}
+                          onChange={(e) => handleChange('insurance_policy_start_date', e.target.value)}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="保険終了日"
+                          variant="outlined"
+                          value={formData?.insurance_policy_end_date || ''}
+                          onChange={(e) => handleChange('insurance_policy_end_date', e.target.value)}
+                        />
+                      </Box>
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>保険料：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Box display="flex" gap={2}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="保険料"
+                          variant="outlined"
+                          value={formData?.insurance_premium || ''}
+                          onChange={(e) => handleChange('insurance_premium', e.target.value)}
+                        />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="支払方法"
+                          variant="outlined"
+                          value={formData?.payment_method || ''}
+                          onChange={(e) => handleChange('payment_method', e.target.value)}
+                        />
+                      </Box>
+                    </Grid>
+                  </>
+                ) : (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>申込日：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.application_date}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.address} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>保険種別：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.insurance_type}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.insurance_type} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>証券番号：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.security_number}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.security_number} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>保険期間：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.insurance_policy_start_date} ～ {data.insurance_policy_end_date}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.insurance_policy_start_date} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>保険料：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.insurance_premium}円（{data.payment_method}）</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.insurance_policy_start_date} />
+                    </Grid>
+                  </>
+                )}
+              </Grid>
+            </Paper>
+          </Box>
+        </Grid>
 
-      {/* 営業情報 */}
-      <Grid item xs={12} md={6}>
-        <Box display="flex" flexDirection="column" height="100%">
-          <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h4" gutterBottom>その他</Typography>
-              {editMode === 'other' ? (
-                <Box>
-                  <IconButton onClick={handleSaveClick} size="small">
-                    <SaveIcon fontSize="small" />
+        {/* 営業情報 */}
+        <Grid item xs={12} md={6}>
+          <Box display="flex" flexDirection="column" height="100%">
+            <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h4" gutterBottom>営業情報</Typography>
+                {editMode === 'sales' ? (
+                  <Box>
+                    <IconButton onClick={handleSaveClick} size="small">
+                      <SaveIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton onClick={handleCancelClick} size="small">
+                      <CancelIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <IconButton onClick={() => handleEditClick('sales')} size="small">
+                    <EditIcon fontSize="small" />
                   </IconButton>
-                  <IconButton onClick={handleCancelClick} size="small">
-                    <CancelIcon fontSize="small" />
+                )}
+              </Box>
+              <Divider />
+              <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
+                {editMode === 'sales' ? (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>初回面談日：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="初回面談日"
+                        variant="outlined"
+                        value={formData?.first_interview_date || ''}
+                        onChange={(e) => handleChange('first_interview_date', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>AP：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="AP"
+                        variant="outlined"
+                        value={formData?.annual_premium || ''}
+                        onChange={(e) => handleChange('annual_premium', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>AC：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="AC"
+                        variant="outlined"
+                        value={formData?.annualized_premium_equivalent || ''}
+                        onChange={(e) => handleChange('annualized_premium_equivalent', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>訪問回数：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="訪問回数"
+                        variant="outlined"
+                        value={formData?.number_of_visits || ''}
+                        onChange={(e) => handleChange('number_of_visits', e.target.value)}
+                      />
+                    </Grid>
+                  </>
+                ) : (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>初回面談日：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.first_interview_date}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={data.first_interview_date} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>AP：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.annual_premium}円</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={`${data.annual_premium}`} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>AC：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.annualized_premium_equivalent}円</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={`${data.annualized_premium_equivalent}`} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>訪問回数：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.number_of_visits}回</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={`${data.number_of_visits}`} />
+                    </Grid>
+                  </>
+                )}
+              </Grid>
+            </Paper>
+          </Box>
+        </Grid>
+
+        {/* 営業情報 */}
+        <Grid item xs={12} md={6}>
+          <Box display="flex" flexDirection="column" height="100%">
+            <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h4" gutterBottom>その他</Typography>
+                {editMode === 'other' ? (
+                  <Box>
+                    <IconButton onClick={handleSaveClick} size="small">
+                      <SaveIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton onClick={handleCancelClick} size="small">
+                      <CancelIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <IconButton onClick={() => handleEditClick('other')} size="small">
+                    <EditIcon fontSize="small" />
                   </IconButton>
-                </Box>
-              ) : (
-                <IconButton onClick={() => handleEditClick('other')} size="small">
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-            <Divider />
-            <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
-              {editMode === 'other' ? (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>年収：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="年収"
-                      variant="outlined"
-                      value={formData?.annual_income || ''}
-                      onChange={(e) => handleChange('annual_income', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>世帯：</Typography>
-                  </Grid>
-                  <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="世帯"
-                      variant="outlined"
-                      value={formData?.household || ''}
-                      onChange={(e) => handleChange('household', e.target.value)}
-                    />
-                  </Grid>
-                </>
-              ) : (
-                <>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>年収：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.annual_income}万</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={`${data.annual_income}`} />
-                  </Grid>
-                  <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>世帯：</Typography>
-                  </Grid>
-                  <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                    <Typography>{data.household}</Typography>
-                  </Grid>
-                  <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
-                    <CopyToClipboardButton text={`${data.household}`} />
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </Paper>
-        </Box>
-      </Grid>
-    </Grid >
+                )}
+              </Box>
+              <Divider />
+              <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
+                {editMode === 'other' ? (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>年収：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="年収"
+                        variant="outlined"
+                        value={formData?.annual_income || ''}
+                        onChange={(e) => handleChange('annual_income', e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>世帯：</Typography>
+                    </Grid>
+                    <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="世帯"
+                        variant="outlined"
+                        value={formData?.household || ''}
+                        onChange={(e) => handleChange('household', e.target.value)}
+                      />
+                    </Grid>
+                  </>
+                ) : (
+                  <>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>年収：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.annual_income}万</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={`${data.annual_income}`} />
+                    </Grid>
+                    <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>世帯：</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
+                      <Typography>{data.household}</Typography>
+                    </Grid>
+                    <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
+                      <CopyToClipboardButton text={`${data.household}`} />
+                    </Grid>
+                  </>
+                )}
+              </Grid>
+            </Paper>
+          </Box>
+        </Grid>
+      </Grid >
     </Container >
   );
 };

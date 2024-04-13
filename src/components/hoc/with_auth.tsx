@@ -1,7 +1,7 @@
 import { useEffect, ComponentType } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from 'src/contexts/auth';
-import { User } from 'src/interfaces/user';
+import { User } from 'src/interfaces/user/response_user';
 
 const withAuth = (WrappedComponent: ComponentType<User>) => {
   const WithAuthComponent = (props: User) => {

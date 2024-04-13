@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import withAuth from 'src/components/hoc/with_auth';
 import { useRouter } from 'next/router';
-import { User } from 'src/interfaces/user';
-import { StmCreate } from 'src/interfaces/stm';
+import { User } from 'src/interfaces/user/response_user';
+import { StmCreate } from 'src/interfaces/stm/response_stm';
 import stmApi from 'src/pages/api/stm';
 import { Button, TextField, Container, Box, Grid, Paper, Typography, Divider, MenuItem } from '@mui/material';
 import { fetchAddressFromPostalCode } from 'src/utils/addressUtils'; // 関数をインポート

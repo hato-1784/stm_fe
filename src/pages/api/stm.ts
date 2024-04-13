@@ -3,7 +3,7 @@ export const config = {
 };
 
 import { jsonClientWithAccessToken, formClientWithAccessToken } from 'src/lib/apiClients';
-import { Stm, StmCreate, StmCreateWithToken, StmUpdate, StmUpdateWithToken, StmDelete, StmDeleteWithToken } from 'src/interfaces/stm';
+import { Stm, StmCreate, StmCreateWithToken, StmUpdate, StmUpdateWithToken, StmDelete, StmDeleteWithToken } from 'src/interfaces/stm/response_stm';
 import { generateToken } from "src/utils/generateToken";
 import FormData from 'form-data';
 

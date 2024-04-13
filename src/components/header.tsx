@@ -1,72 +1,95 @@
 import React from 'react';
-import { useAuth } from 'src/contexts/auth';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { useRouter } from 'next/router'; // useRouterをインポート
+import { AppBar, Box, Toolbar, Typography, IconButton, Badge, Button } from '@mui/material';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
+
+// 分割したコンポーネントをインポート
+import NoticeDrawer from 'src/components/header/noticeDrawer';
+import AccountMenu from 'src/components/header/accountMenu';
+import PageNavigation from 'src/components/header/pageNavigation';
+
+// カスタムフックをインポート
+import useNotice from 'src/hooks/header/useNotice';
+import useDrawerState from 'src/hooks/header/useDrawerState';
+import useDropdownState from 'src/hooks/header/useDropdownState';
+import { useAuth } from 'src/contexts/auth';
+import { useUploadSuccess } from 'src/contexts/uploadSuccessContext';
 
 const Header = () => {
   const { user, signout } = useAuth();
-  const router = useRouter(); // useRouterフックを使用
+  const router = useRouter();
+  const [notification, setNotification] = useUploadSuccess();
+  const uploadSuccess = notification.uploadSuccess;
 
-  const handleSignOut = async () => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const isMenuOpen = Boolean(anchorEl);
+
+  const notice = useNotice();
+  const { isDrawerOpen, toggleDrawer } = useDrawerState();
+  const { openDropdown, handleDropdownClick } = useDropdownState();
+
+  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSignOut = () => {
+    handleMenuClose();
     try {
-      await signout();
-      router.push('/signin'); // サインアウト後にサインインページにリダイレクト
+      signout();
+      router.push('/signin');
     } catch (error) {
       console.error("Sign out failed:", error);
     }
   };
 
-  // ページリンクを追加
   const pages = ['顧客一覧', 'テスト', 'テスト'];
-
-  // ページリンクの遷移先をカスタマイズ
   const navigateToPage = (page: string) => {
-    if (page === '顧客一覧') {
-      const accessToken = Cookies.get('access_token');
-      if (!accessToken) {
-        // ログインしていない場合はサインインページに遷移
-        router.push('/signin');
-      } else {
-        // ログイン済みであれば顧客一覧(/stm)に遷移
-        router.push('/stm');
-      }
-    }
+    // ページ遷移ロジック...
   };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar sx={{ justifyContent: 'space-between' }}> {/* Toolbar全体のスタイルを調整 */}
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Typographyの横幅を文字サイズに合わせて調整 */}
             <Typography variant="h5" component="div" sx={{ cursor: 'pointer' }} onClick={() => {
               const accessToken = Cookies.get('access_token');
               if (accessToken) {
-                // ログイン済みであれば/stmにリダイレクト
                 router.push('/stm');
               } else {
-                // ログインしていない場合は/にリダイレクト
                 router.push('/');
               }
             }}>
               STM
             </Typography>
-            {/* ページリンクを左寄せで表示 */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginLeft: 2 }}> {/* 左寄せのためのスタイルを追加 */}
-              {pages.map((page) => (
-                <Button key={page} color="inherit" onClick={() => navigateToPage(page)} sx={{ marginLeft: 1 }}>{page}</Button>
-              ))}
-            </Box>
+            <PageNavigation pages={pages} navigateToPage={navigateToPage} />
           </Box>
-          {/* Sign in, Sign up, Sign outを右寄せで配置 */}
-          <Box sx={{ display: 'flex', flexGrow: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton size="large" color="inherit" onClick={() => toggleDrawer(true)}>
+              <Badge badgeContent={uploadSuccess ? 1 : 0} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
             {user ? (
-              <Button color="inherit" onClick={handleSignOut}>Sign out</Button>
+              <>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  aria-label="account of current user"
+                  aria-controls="primary-search-account-menu"
+                  aria-haspopup="true"
+                  onClick={handleProfileMenuOpen}
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton>
+              </>
             ) : (
               <>
                 <Button color="inherit" onClick={() => router.push('/signin')}>Sign in</Button>
@@ -76,6 +99,8 @@ const Header = () => {
           </Box>
         </Toolbar>
       </AppBar>
+      <AccountMenu anchorEl={anchorEl} isMenuOpen={isMenuOpen} handleMenuClose={handleMenuClose} handleSignOut={handleSignOut} />
+      <NoticeDrawer isOpen={isDrawerOpen} toggleDrawer={toggleDrawer} notice={notice} openDropdown={openDropdown} handleDropdownClick={handleDropdownClick} />
     </Box>
   );
 };

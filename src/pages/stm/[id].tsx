@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import withAuth from 'src/components/hoc/with_auth';
 import { useRouter } from 'next/router';
-import { User } from 'src/interfaces/user';
-import { Stm, StmUpdate } from 'src/interfaces/stm'; // StmUpdateインタフェースをインポート
+import { User } from 'src/interfaces/user/response_user';
+import { Stm, StmUpdate } from 'src/interfaces/stm/response_stm'; // StmUpdateインタフェースをインポート
 import stmApi from 'src/pages/api/stm';
 import { Container, Typography, Grid, Paper, Divider, Box, CircularProgress, IconButton, Tooltip, TextField, MenuItem, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -236,8 +236,8 @@ const DetailPage: React.FC<User> = ({ username }) => {
                         <PatternFormat
                           customInput={TextField}
                           format="####/##/##"
-                          placeholder="年/月/日"
-                          mask=" "
+                          placeholder="1999/01/01"
+                          // mask=""
                           value={formData?.date_of_birth || ''}
                           onValueChange={(values) => {
                             // const { formattedValue } = values;

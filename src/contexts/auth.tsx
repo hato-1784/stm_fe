@@ -1,6 +1,6 @@
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import { useRouter } from "next/router";
-import { User } from 'src/interfaces/user';
+import { User } from 'src/interfaces/user/response_user';
 import { signIn } from 'src/pages/api/signIn';
 import { signUp } from 'src/pages/api/signUp';
 import { getUser } from 'src/pages/api/getUser';

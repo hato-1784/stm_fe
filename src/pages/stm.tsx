@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import withAuth from 'src/components/hoc/with_auth';
 import Head from "next/head";
 import { useRouter } from 'next/router';
-import { Stm } from 'src/interfaces/stm';
-import { User } from 'src/interfaces/user';
+import { Stm } from 'src/interfaces/stm/response_stm';
+import { User } from 'src/interfaces/user/response_user';
 import stmApi from 'src/pages/api/stm';
 import { DataGrid, GridColDef, GridValueGetterParams, jaJP } from '@mui/x-data-grid';
 import Container from '@mui/material/Container';
@@ -11,16 +11,16 @@ import Box from '@mui/material/Box';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import PostalMarkIcon from 'src/icons/PostalMarkIcon';
 import CircularProgress from '@mui/material/CircularProgress'; // ローディングインジケーター用のコンポーネントをインポート
-import CustomNoRowsOverlay from 'src/components/stm/custom_no_rows_overlay';
-import CustomToolbar from 'src/components/stm/custom_toolbar';
+import CustomNoRowsOverlay from 'src/components/stm/customNoRowsOverlay';
+import CustomToolbar from 'src/components/stm/customToolbar';
 import TablePagination from '@mui/material/TablePagination';
 import Checkbox from '@mui/material/Checkbox'; // Checkboxをインポート
+import { useUploadSuccess } from 'src/contexts/uploadSuccessContext';
+import { useStmData } from 'src/hooks/stm/useStmData';
 
 const StmPage: React.FC<User> = ({ username }) => {
-  const [stm, setStm] = useState<Stm[]>([]);
-  const [filteredStm, setFilteredStm] = useState<Stm[]>([]); // 検索結果を格納するための状態
+  const { stm, filteredStm, setFilteredStm, isLoading, fetchData } = useStmData();
   const [searchQuery, setSearchQuery] = useState(''); // 検索クエリの状態
-  const [isLoading, setIsLoading] = useState(true); // データ読み込み状態を追跡するための状態変数
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
@@ -28,19 +28,7 @@ const StmPage: React.FC<User> = ({ username }) => {
   const [exportMode, setExportMode] = useState(false); // Exportモードの状態を追加
   const [selectedData, setSelectedData] = useState<Stm[]>([]); // 選択されたデータを管理
   const [lastChecked, setLastChecked] = useState<number | null>(null); // 最後にチェックされた行のインデックスを保持
-
-  const fetchData = async () => {
-    setIsLoading(true); // データ読み込み開始
-    try {
-      const res = await stmApi.stmList();
-      setStm(res);
-      setFilteredStm(res); // データ取得後に検索結果を更新
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false); // データ読み込み完了またはエラー発生後にローディング状態を解除
-    }
-  };
+  const [uploadSuccess, setUploadSuccess] = useUploadSuccess();
 
   // 検索処理
   const handleSearch = useCallback(() => {
@@ -317,6 +305,7 @@ const StmPage: React.FC<User> = ({ username }) => {
             onKeyDown={handleKeyDown}
             username={username as string}
             fetchData={fetchData}
+            setUploadSuccess={setUploadSuccess}
           />
           <TablePagination
             component="div"

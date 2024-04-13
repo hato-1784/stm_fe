@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stm } from 'src/interfaces/stm';
+import { Stm } from 'src/interfaces/stm/response_stm';
 import stmApi from 'src/pages/api/stm';
 import IconButton from '@mui/material/IconButton';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -13,6 +13,7 @@ import Button from '@mui/material/Button'; // Buttonコンポーネントをイ�
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search'; // 検索アイコンをインポート
+import { NoticeUpload } from 'src/interfaces/notice/response_notice';
 
 // スタイル定義
 const Search = styled('div')(({ theme }) => ({
@@ -62,19 +63,21 @@ interface CustomToolbarProps {
   onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void; // onKeyDownプロパティを追加
   username: string;
   fetchData: () => Promise<void>;
+  setUploadSuccess: (notification: NoticeUpload) => void;
 }
 
 const CustomToolbar = ({
-  deleteMode: deleteMode,
-  setDeleteMode: setDeleteMode,
-  exportMode: exportMode,
-  setExportMode: setExportMode,
+  deleteMode,
+  setDeleteMode,
+  exportMode,
+  setExportMode,
   selectedData,
   onDelete,
   onExport,
   onSearchQueryChange,
   onKeyDown,
-  username, fetchData
+  username, fetchData,
+  setUploadSuccess
 }: CustomToolbarProps) => {
   const router = useRouter();
   const fileInputRef = React.useRef<HTMLInputElement>(null); // ファイル入力のためのref
@@ -95,9 +98,14 @@ const CustomToolbar = ({
     const files = event.target.files;
     if (files && files[0]) {
       const file = files[0];
-      await stmApi.stmUpload(file, username); // Buffer.from(buffer)の代わりにfileを直接使用
-      // アップロード後の処理（成功通知など）をここに追加
-      await fetchData();
+      try {
+        await stmApi.stmUpload(file, username); // アップロード処理
+        setUploadSuccess({ uploadSuccess: true }); // 修正: Notification 型のオブジェクトを渡す
+        await fetchData();
+      } catch (error) {
+        console.error(error);
+        setUploadSuccess({ uploadSuccess: false }); // 修正: Notification 型のオブジェクトを渡す
+      }
     }
   };
 

@@ -1,71 +1,45 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect } from "react";
 import withAuth from 'src/components/hoc/with_auth';
 import Head from "next/head";
 import { useRouter } from 'next/router';
-import { Stm } from 'src/interfaces/stm/response_stm';
 import { User } from 'src/interfaces/user/response_user';
-import stmApi from 'src/pages/api/stm';
 import { DataGrid, GridColDef, GridValueGetterParams, jaJP } from '@mui/x-data-grid';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import PostalMarkIcon from 'src/icons/PostalMarkIcon';
-import CircularProgress from '@mui/material/CircularProgress'; // ローディングインジケーター用のコンポーネントをインポート
 import CustomNoRowsOverlay from 'src/components/stm/customNoRowsOverlay';
 import CustomToolbar from 'src/components/stm/customToolbar';
 import TablePagination from '@mui/material/TablePagination';
-import Checkbox from '@mui/material/Checkbox'; // Checkboxをインポート
+import Checkbox from '@mui/material/Checkbox';
 import { useUploadSuccess } from 'src/contexts/uploadSuccessContext';
-import { useStmData } from 'src/hooks/stm/useStmData';
+import { useStmPage } from 'src/hooks/stm/useStmPage';
+import LoadingScreenWrapper from 'src/components/loading/loadingScreenWrapper';
 
 const StmPage: React.FC<User> = ({ username }) => {
-  const { stm, filteredStm, setFilteredStm, isLoading, fetchData } = useStmData();
-  const [searchQuery, setSearchQuery] = useState(''); // 検索クエリの状態
+  const {
+    stm,
+    filteredStm,
+    selectedData,
+    isLoading,
+    fetchData,
+    handleSearchQueryChange,
+    handleCheckboxChange,
+    handleDelete,
+    handleExport,
+    handleKeyDown,
+  } = useStmPage(username);
+
   const router = useRouter();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [deleteMode, setDeleteMode] = useState(false); // 削除モードの状態を追加
-  const [exportMode, setExportMode] = useState(false); // Exportモードの状態を追加
-  const [selectedData, setSelectedData] = useState<Stm[]>([]); // 選択されたデータを管理
-  const [lastChecked, setLastChecked] = useState<number | null>(null); // 最後にチェックされた行のインデックスを保持
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(20);
+  const [deleteMode, setDeleteMode] = React.useState(false);
+  const [exportMode, setExportMode] = React.useState(false);
   const [uploadSuccess, setUploadSuccess] = useUploadSuccess();
 
-  // 検索処理
-  const handleSearch = useCallback(() => {
-    const lowercasedQuery = searchQuery.toLowerCase();
-    const filteredData = stm.filter(item =>
-      item.last_name.toLowerCase().includes(lowercasedQuery) ||
-      item.first_name.toLowerCase().includes(lowercasedQuery) ||
-      item.last_name_kana.toLowerCase().includes(lowercasedQuery) ||
-      item.first_name_kana.toLowerCase().includes(lowercasedQuery) ||
-      item.address.toLowerCase().includes(lowercasedQuery) ||
-      item.contact_information.toLowerCase().includes(lowercasedQuery)
-      // 他に検索対象としたいフィールドがあればここに追加
-    );
-    setFilteredStm(filteredData);
-  }, [searchQuery, stm]);
-
-  // エンターキーを押下したときに検索を実行するイベントハンドラ
-  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
-  }, [handleSearch]);
-
-  // 検索クエリが変更されたときに検索を実行
   useEffect(() => {
     fetchData();
-    // 初期読み込み時には検索を実行しない
-  }, []);
-
-  // 検索クエリ入力フィールドの変更イベントハンドラ
-  const handleSearchQueryChange = useCallback((query: string) => {
-    setSearchQuery(query);
-    if (query === '') {
-      // 検索バーが空の場合はすべてのデータを表示
-      setFilteredStm(stm);
-    }
-  }, [stm]);
+  }, [fetchData]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -73,109 +47,20 @@ const StmPage: React.FC<User> = ({ username }) => {
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
-    setPage(0); // ページサイズを変更するときは1ページ目に戻る
+    setPage(0);
   };
 
-  // 削除モードの状態を切り替える関数
   const toggleDeleteMode = () => {
     setDeleteMode(!deleteMode);
   };
 
-  // Exportモードの状態を切り替える関数
   const toggleExportMode = () => {
     setExportMode(!exportMode);
   };
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, id: string, index: number) => {
-    let newSelectedData = [...selectedData];
-    const isChecked = event.target.checked;
-    const isShiftKey = (event.nativeEvent as MouseEvent).shiftKey;
-
-    if (isShiftKey && lastChecked !== null) {
-      const start = Math.min(lastChecked, index);
-      const end = Math.max(lastChecked, index);
-      const toBeToggled = stm.slice(start, end + 1);
-
-      if (isChecked) {
-        // 範囲内の未選択項目を選択
-        newSelectedData = [...new Set([...newSelectedData, ...toBeToggled])];
-      } else {
-        // 範囲内の選択項目を解除
-        newSelectedData = newSelectedData.filter(data => !toBeToggled.some(toggle => toggle.id === data.id));
-      }
-    } else {
-      if (isChecked) {
-        newSelectedData.push(stm.find(data => data.id === id)!);
-      } else {
-        newSelectedData = newSelectedData.filter(data => data.id !== id);
-      }
-      setLastChecked(index); // 最後にチェックされた行のインデックスを更新
-    }
-
-    setSelectedData(newSelectedData);
-  };
-
-
-  // 選択された行のIDを使用して削除処理を行う関数
-  const handleDelete = async () => {
-    if (selectedData.length > 0) {
-      try {
-        await stmApi.stmDeleteMultiple(selectedData, username as string);
-        setSelectedData([]); // 選択状態をクリア
-        await fetchData(); // 削除後にデータを再取得
-        // 成功した場合のメッセージ表示など
-      } catch (error) {
-        console.error(error);
-        // エラー処理
-      }
-    }
-  };
-
-  // 選択された行のデータをエクスポートする関数
-  const handleExport = async () => {
-    if (selectedData.length > 0) {
-      // 選択されたデータをCSV形式でエクスポートする処理
-      const csvHeader = Object.keys(selectedData[0]).join(',') + '\n'; // ヘッダー行
-      const csvBody = selectedData
-        .map(row => {
-          return Object.values(row).join(',');
-        })
-        .join('\n');
-      const csvContent = csvHeader + csvBody;
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'exported_data.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <Container component="main">
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-          }}
-        >
-          <CircularProgress /> {/* ローディングインジケーターを表示 */}
-        </Box>
-      </Container>
-    );
-  }
-
   const columns: GridColDef[] = [
     {
-      // 空にするとヘッダーの背景色が変わってしまうため、空白を入れる
       field: ' ',
-      // 空にするとヘッダーの背景色が変わってしまうため、空白を入れる
       headerName: ' ',
       sortable: false,
       filterable: false,
@@ -259,9 +144,7 @@ const StmPage: React.FC<User> = ({ username }) => {
       sortable: true,
       renderCell: (params) => (
         <div style={{ display: 'flex', alignItems: 'center', }}>
-          {/* <PostalMarkIcon style={{ fontSize: 'inherit' }} /> */}
           <PostalMarkIcon />
-          {/* 郵便番号をハイフン区切りに変更 */}
           {params.value ? params.value.replace(/^(\d{3})(\d{4})$/, '$1-$2') : ''}
         </div>
       ),
@@ -279,75 +162,74 @@ const StmPage: React.FC<User> = ({ username }) => {
     },
   ];
 
-  // データが読み込まれた後のコンポーネントのレンダリング
   return (
-    <Container component="main" style={{ padding: '24px' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Head>
-          <title>STM</title>
-        </Head>
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <CustomToolbar
-            deleteMode={deleteMode}
-            setDeleteMode={toggleDeleteMode}
-            exportMode={exportMode}
-            setExportMode={toggleExportMode}
-            selectedData={selectedData}
-            onDelete={handleDelete}
-            onExport={handleExport}
-            onSearchQueryChange={handleSearchQueryChange}
-            onKeyDown={handleKeyDown}
-            username={username as string}
-            fetchData={fetchData}
-            setUploadSuccess={setUploadSuccess}
-          />
-          <TablePagination
-            component="div"
-            count={stm.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[20, 50, 100]}
+    <LoadingScreenWrapper isLoading={isLoading}>
+      <Container component="main" style={{ padding: '24px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Head>
+            <title>STM</title>
+          </Head>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <CustomToolbar
+              deleteMode={deleteMode}
+              setDeleteMode={toggleDeleteMode}
+              exportMode={exportMode}
+              setExportMode={toggleExportMode}
+              selectedData={selectedData}
+              onDelete={handleDelete}
+              onExport={handleExport}
+              onSearchQueryChange={handleSearchQueryChange}
+              onKeyDown={handleKeyDown}
+              username={username as string}
+              fetchData={fetchData}
+              setUploadSuccess={setUploadSuccess}
+            />
+            <TablePagination
+              component="div"
+              count={stm.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[20, 50, 100]}
+            />
+          </Box>
+          <DataGrid
+            rows={filteredStm.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
+            columns={columns}
+            rowCount={stm.length}
+            sortingMode="client"
+            autoHeight
+            hideFooter={true}
+            hideFooterPagination={true}
+            sx={{
+              width: '100%',
+              '.MuiDataGrid-columnHeader--sorted': {
+                backgroundColor: 'transparent',
+              },
+              '.MuiDataGrid-cell:focus-within': {
+                outline: 'none',
+              },
+              '.MuiDataGrid-columnHeader:focus-within': {
+                outline: 'none',
+              },
+              '--DataGrid-overlayHeight': '300px',
+            }}
+            pagination
+            slots={{
+              noRowsOverlay: CustomNoRowsOverlay,
+            }}
+            localeText={jaJP.components.MuiDataGrid.defaultProps.localeText}
           />
         </Box>
-        <DataGrid
-          rows={filteredStm.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
-          columns={columns}
-          rowCount={stm.length}
-          sortingMode="client"
-          autoHeight
-          hideFooter={true}
-          hideFooterPagination={true}
-          sx={{
-            width: '100%',
-            // muiのデフォルトのスタイルを変更
-            '.MuiDataGrid-columnHeader--sorted': {
-              backgroundColor: 'transparent',
-            },
-            '.MuiDataGrid-cell:focus-within': {
-              outline: 'none',
-            },
-            '.MuiDataGrid-columnHeader:focus-within': {
-              outline: 'none',
-            },
-            '--DataGrid-overlayHeight': '300px',
-          }}
-          pagination
-          slots={{
-            noRowsOverlay: CustomNoRowsOverlay,
-            // toolbar: () => <CustomToolbar editMode={editMode} setEditMode={toggleEditMode} selectedData={selectedData} onDelete={handleDelete} />,
-          }}
-          localeText={jaJP.components.MuiDataGrid.defaultProps.localeText}
-        />
-      </Box>
-    </Container>
+      </Container>
+    </LoadingScreenWrapper>
   );
 };
 

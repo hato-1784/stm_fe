@@ -1,6 +1,6 @@
 export interface User {
-  username?: string | null;
-  email?: string | null;
-  version?: number | null;
+  username: string;
+  email: string;
+  version: number;
   client_request_token?: string | null;
 }

@@ -50,7 +50,14 @@ const Header = () => {
 
   const pages = ['顧客一覧', 'テスト', 'テスト'];
   const navigateToPage = (page: string) => {
-    // ページ遷移ロジック...
+    switch (page) {
+      case '顧客一覧':
+        router.push('/stm');
+        break;
+      // 他のページの遷移ロジックもここに追加...
+      default:
+        break;
+    }
   };
 
   return (

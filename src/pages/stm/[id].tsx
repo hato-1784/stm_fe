@@ -233,26 +233,16 @@ const DetailPage: React.FC<User> = ({ username }) => {
                           value={formData?.age || ''}
                           onChange={(e) => handleChange('age', e.target.value)}
                         />
-                        <PatternFormat
-                          customInput={TextField}
-                          format="####/##/##"
-                          placeholder="1999/01/01"
-                          // mask=""
-                          value={formData?.date_of_birth || ''}
-                          onValueChange={(values) => {
-                            // const { formattedValue } = values;
-                            // handleChangeDateOfBirth(values.value);
-                            handleChangeDateOfBirth(values.formattedValue);
-                          }}
+                        <TextField
                           fullWidth
                           size="small"
                           label="生年月日"
+                          type="date"
                           variant="outlined"
+                          value={formData?.date_of_birth || ''}
+                          onChange={(e) => handleChangeDateOfBirth(e.target.value)}
                           InputLabelProps={{
                             shrink: true,
-                          }}
-                          InputProps={{
-                            style: { letterSpacing: '2px' } // テキストの間隔を調整
                           }}
                         />
                       </Box>
@@ -464,9 +454,13 @@ const DetailPage: React.FC<User> = ({ username }) => {
                         fullWidth
                         size="small"
                         label="申込日"
+                        type="date"
                         variant="outlined"
                         value={formData?.application_date || ''}
                         onChange={(e) => handleChange('application_date', e.target.value)}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
                       />
                     </Grid>
                     <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
@@ -504,17 +498,25 @@ const DetailPage: React.FC<User> = ({ username }) => {
                           fullWidth
                           size="small"
                           label="保険開始日"
+                          type="date"
                           variant="outlined"
                           value={formData?.insurance_policy_start_date || ''}
                           onChange={(e) => handleChange('insurance_policy_start_date', e.target.value)}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
                         />
                         <TextField
                           fullWidth
                           size="small"
                           label="保険終了日"
+                          type="date"
                           variant="outlined"
                           value={formData?.insurance_policy_end_date || ''}
                           onChange={(e) => handleChange('insurance_policy_end_date', e.target.value)}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
                         />
                       </Box>
                     </Grid>
@@ -629,9 +631,13 @@ const DetailPage: React.FC<User> = ({ username }) => {
                         fullWidth
                         size="small"
                         label="初回面談日"
+                        type="date"
                         variant="outlined"
                         value={formData?.first_interview_date || ''}
                         onChange={(e) => handleChange('first_interview_date', e.target.value)}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
                       />
                     </Grid>
                     <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>

@@ -91,13 +91,17 @@ const StmPage: React.FC<User> = ({ username }) => {
     {
       field: 'fullName',
       headerName: '氏名',
-      flex: 8,
+      flex: 5,
       valueGetter: (params: GridValueGetterParams) =>
-        `${params.row.last_name || ''} ${params.row.first_name || ''}（${params.row.last_name_kana || ''} ${params.row.first_name_kana || ''}）`,
+        `${params.row.last_name_kana || ''} ${params.row.first_name_kana || ''}\n${params.row.last_name || ''} ${params.row.first_name || ''}`,
       sortable: true,
       renderCell: (params) => (
-        <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>
-          {params.value}
+        <div style={{ whiteSpace: 'pre-line', lineHeight: 'normal' }}>
+          <span style={{ fontSize: '10px' }}>
+            {params.row.last_name_kana || ''} {params.row.first_name_kana || ''}
+          </span>
+          <br />
+          {params.row.last_name || ''} {params.row.first_name || ''}
         </div>
       ),
     },
@@ -152,7 +156,7 @@ const StmPage: React.FC<User> = ({ username }) => {
     {
       field: 'address',
       headerName: '住所',
-      flex: 10,
+      flex: 13,
       sortable: true,
       renderCell: (params) => (
         <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>
@@ -206,6 +210,7 @@ const StmPage: React.FC<User> = ({ username }) => {
             rowCount={stm.length}
             sortingMode="client"
             autoHeight
+            rowHeight={70}
             hideFooter={true}
             hideFooterPagination={true}
             sx={{

@@ -4,8 +4,9 @@ import { useRouter } from 'next/router';
 import { User } from 'src/interfaces/user/response_user';
 import { StmCreate } from 'src/interfaces/stm/response_stm';
 import stmApi from 'src/pages/api/stm';
-import { Button, TextField, Container, Box, Grid, Paper, Typography, Divider, MenuItem } from '@mui/material';
+import { Button, TextField, Container, Box, Grid, Paper, Typography, Divider, MenuItem, FormControlLabel, RadioGroup, FormControl, FormLabel, Radio } from '@mui/material';
 import { fetchAddressFromPostalCode } from 'src/utils/addressUtils'; // 関数をインポート
+import { NumericFormat } from 'react-number-format'; // この行を追加
 
 const CreateStmPage: React.FC<User> = ({ username }) => {
   const [formData, setFormData] = useState<StmCreate>({
@@ -153,20 +154,19 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                   <Typography>性別：</Typography>
                 </Grid>
                 <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}> {/* minHeightを設定 */}
-                  <TextField
-                    select
-                    SelectProps={{ native: true }}
-                    fullWidth
-                    size="small"
-                    label="性別"
-                    name="gender"
-                    onChange={handleChange}
-                  >
-                    <option value=""></option>
-                    <option value="男性">男性</option>
-                    <option value="女性">女性</option>
-                    <option value="その他">その他</option>
-                  </TextField>
+                  <FormControl>
+                    <RadioGroup
+                      row
+                      aria-labelledby="gender-radio-buttons-group"
+                      name="gender"
+                      value={formData?.gender || ''}
+                      onChange={handleChange}
+                    >
+                      <FormControlLabel value="男性" control={<Radio size="small" />} label="男性" />
+                      <FormControlLabel value="女性" control={<Radio size="small" />} label="女性" />
+                      <FormControlLabel value="その他" control={<Radio size="small" />} label="その他" />
+                    </RadioGroup>
+                  </FormControl>
                 </Grid>
               </Grid>
             </Paper>
@@ -335,13 +335,19 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                 </Grid>
                 <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <Box display="flex" gap={2}>
-                    <TextField
+                    <NumericFormat
                       fullWidth
+                      customInput={TextField}
                       size="small"
                       label="保険料"
                       name="insurance_premium"
-                      type="number"
-                      onChange={handleChange}
+                      thousandSeparator={true} // 3桁ごとにカンマ区切り
+                      prefix={'¥'} // 通貨記号のプレフィックス
+                      onValueChange={(values) => {
+                        const { floatValue } = values;
+                        // floatValueを使用して数値を更新します。handleChangeを適切に調整する必要があります。
+                        handleChange({ target: { name: 'insurance_premium', value: floatValue } } as any);
+                      }}
                     />
                     <TextField
                       fullWidth
@@ -437,13 +443,19 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                   <Typography>年収：</Typography>
                 </Grid>
                 <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                  <TextField
+                  <NumericFormat
                     fullWidth
+                    customInput={TextField}
                     size="small"
                     label="年収"
                     name="annual_income"
-                    type="number"
-                    onChange={handleChange}
+                    thousandSeparator={true} // 3桁ごとにカンマ区切り
+                    prefix={'¥'} // 通貨記号のプレフィックス
+                    onValueChange={(values) => {
+                      const { floatValue } = values;
+                      // floatValueを使用して数値を更新します。handleChangeを適切に調整する必要があります。
+                      handleChange({ target: { name: 'annual_income', value: floatValue } } as any);
+                    }}
                   />
                 </Grid>
                 <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
@@ -455,7 +467,7 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                     size="small"
                     label="世帯"
                     name="household"
-                    type="number"
+                    type="text"
                     onChange={handleChange}
                   />
                 </Grid>

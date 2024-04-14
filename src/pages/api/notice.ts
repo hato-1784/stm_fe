@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'experimental-edge',
+};
+
 import { jsonClientWithAccessToken, formClientWithAccessToken } from 'src/lib/apiClients';
 
 export const noticeList = async () => {

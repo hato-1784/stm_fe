@@ -73,6 +73,7 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
   return (
     <Container maxWidth="lg" style={{ padding: '24px' }}>
       <Grid container spacing={3} component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        {/* 個人情報 */}
         <Grid item xs={12} md={6}>
           <Box display="flex" flexDirection="column" height="100%">
             <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>
@@ -81,7 +82,6 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
               </Box>
               <Divider />
               <Grid container spacing={2} alignItems="stretch" style={{ marginTop: '10px' }}>
-                {/* 個人情報 */}
                 <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <Typography>氏名：</Typography>
                 </Grid>
@@ -232,7 +232,8 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                 <Typography variant="h4" gutterBottom>契約情報</Typography>
               </Box>
               <Divider />
-              <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}>
+              {/* <Grid container spacing={2} style={{ marginTop: '10px', alignItems: 'center' }}> */}
+              <Grid container spacing={2} alignItems="stretch" style={{ marginTop: '10px' }}>
                 <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <Typography>申込日：</Typography>
                 </Grid>
@@ -270,24 +271,36 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                 </Grid>
                 <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <TextField
+                    select
                     fullWidth
                     size="small"
                     label="契約タイプ"
                     name="contract_type"
+                    value={formData.contract_type}
                     onChange={handleChange}
-                  />
+                  >
+                    <MenuItem value="契約タイプ１">契約タイプ１</MenuItem>
+                    <MenuItem value="契約タイプ２">契約タイプ２</MenuItem>
+                    <MenuItem value="契約タイプ３">契約タイプ３</MenuItem>
+                  </TextField>
                 </Grid>
                 <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <Typography>保険種別：</Typography>
                 </Grid>
                 <Grid item xs={9} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <TextField
+                    select
                     fullWidth
                     size="small"
                     label="保険種別"
                     name="insurance_type"
+                    value={formData.insurance_type}
                     onChange={handleChange}
-                  />
+                  >
+                    <MenuItem value="種別１">種別１</MenuItem>
+                    <MenuItem value="種別２">種別２</MenuItem>
+                    <MenuItem value="種別３">種別３</MenuItem>
+                  </TextField>
                 </Grid>
                 <Grid item xs={3} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
                   <Typography>証券番号：</Typography>
@@ -350,12 +363,17 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
                       }}
                     />
                     <TextField
+                      select
                       fullWidth
                       size="small"
                       label="支払方法"
                       name="payment_method"
+                      value={formData.payment_method}
                       onChange={handleChange}
-                    />
+                    >
+                      <MenuItem value="クレジットカード">クレジットカード</MenuItem>
+                      <MenuItem value="銀行引き落とし">銀行引き落とし</MenuItem>
+                    </TextField>
                   </Box>
                 </Grid>
               </Grid>
@@ -430,7 +448,7 @@ const CreateStmPage: React.FC<User> = ({ username }) => {
             </Paper>
           </Box>
         </Grid>
-        {/* 営業情報 */}
+        {/* その他 */}
         <Grid item xs={12} md={6}>
           <Box display="flex" flexDirection="column" height="100%">
             <Paper style={{ padding: '20px', flexGrow: 1, overflow: 'hidden' }}>

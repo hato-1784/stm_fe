@@ -13,6 +13,7 @@ import copy from 'copy-to-clipboard';
 import { fetchAddressFromPostalCode } from 'src/utils/addressUtils';
 import { calcAge } from 'src/utils/calcUtils';
 import { PatternFormat, NumericFormat } from 'react-number-format';
+import formatDateOfBirth from 'src/utils/formatDateOfBirth';
 
 interface CopyToClipboardButtonProps {
   text: string;
@@ -265,19 +266,6 @@ const DetailPage: React.FC<User> = ({ username }) => {
                           <FormControlLabel value="その他" control={<Radio size="small" />} label="その他" />
                         </RadioGroup>
                       </FormControl>
-                      {/* <TextField
-                        select
-                        fullWidth
-                        size="small"
-                        label="性別"
-                        variant="outlined"
-                        value={formData?.gender || ''}
-                        onChange={(e) => handleChange('gender', e.target.value)}
-                      >
-                        <MenuItem value="男">男性</MenuItem>
-                        <MenuItem value="女">女性</MenuItem>
-                        <MenuItem value="other">その他</MenuItem>
-                      </TextField> */}
                     </Grid>
                   </>
                 ) : (
@@ -296,7 +284,7 @@ const DetailPage: React.FC<User> = ({ username }) => {
                       <Typography>年齢：</Typography>
                     </Grid>
                     <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                      <Typography>{data.age}歳（{data.date_of_birth}生まれ）</Typography>
+                      <Typography>{data.age}歳（{formatDateOfBirth(data.date_of_birth)}生まれ）</Typography>
                     </Grid>
                     <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
                       <CopyToClipboardButton text={`${data.age}歳（${data.date_of_birth}生まれ）`} />
@@ -391,7 +379,7 @@ const DetailPage: React.FC<User> = ({ username }) => {
                       <Typography>郵便番号：</Typography>
                     </Grid>
                     <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                      <Typography>{data.postal_code}</Typography>
+                      <Typography>{data.postal_code ? `${data.postal_code.slice(0, 3)} - ${data.postal_code.slice(3)}` : ''}</Typography>
                     </Grid>
                     <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
                       <CopyToClipboardButton text={data.postal_code} />
@@ -550,7 +538,7 @@ const DetailPage: React.FC<User> = ({ username }) => {
                       <Typography>申込日：</Typography>
                     </Grid>
                     <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                      <Typography>{data.application_date}</Typography>
+                      <Typography>{formatDateOfBirth(data.application_date)}</Typography>
                     </Grid>
                     <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
                       <CopyToClipboardButton text={data.address} />
@@ -577,7 +565,7 @@ const DetailPage: React.FC<User> = ({ username }) => {
                       <Typography>保険期間：</Typography>
                     </Grid>
                     <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                      <Typography>{data.insurance_policy_start_date} ～ {data.insurance_policy_end_date}</Typography>
+                      <Typography>{formatDateOfBirth(data.insurance_policy_start_date)} ～ {formatDateOfBirth(data.insurance_policy_end_date)}</Typography>
                     </Grid>
                     <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
                       <CopyToClipboardButton text={data.insurance_policy_start_date} />
@@ -686,7 +674,7 @@ const DetailPage: React.FC<User> = ({ username }) => {
                       <Typography>初回面談日：</Typography>
                     </Grid>
                     <Grid item xs={8} style={{ display: 'flex', alignItems: 'center', minHeight: '64px' }}>
-                      <Typography>{data.first_interview_date}</Typography>
+                      <Typography>{formatDateOfBirth(data.first_interview_date)}</Typography>
                     </Grid>
                     <Grid item xs={1} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: '64px' }}>
                       <CopyToClipboardButton text={data.first_interview_date} />
